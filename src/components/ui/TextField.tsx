@@ -28,7 +28,7 @@ export function TextField({ label, hint, error, ref, className = '', ...props }:
         ref={ref}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`min-h-touch w-full rounded-chip border-2 bg-surface px-4 text-body placeholder:text-ink-muted/70 ${
+        className={`min-h-touch w-full rounded-chip border-2 bg-surface px-4 text-body placeholder:text-ink-muted ${
           error ? 'border-danger' : 'border-line'
         } ${className}`}
         {...props}

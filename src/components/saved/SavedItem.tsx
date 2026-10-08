@@ -28,7 +28,7 @@ export function SavedItem({ place, restaurant, removing = false, onRemove }: Pro
         )}
       </div>
       <div className="min-w-0">
-        <h3 className="line-clamp-2 font-display text-lead font-bold leading-tight">{place.name}</h3>
+        <h2 className="line-clamp-2 font-display text-lead font-bold leading-tight">{place.name}</h2>
         <p className="flex items-center gap-1 truncate text-caption text-ink-muted">
           {meta}
           {!restaurant && place.sourceUrl ? (

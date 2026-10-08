@@ -6,7 +6,7 @@ export function TopNav() {
   return (
     <header className="hidden border-b border-line bg-surface md:block">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-gutter py-2">
-        <Link to="/" className="font-display text-lead font-bold text-brand-dark">
+        <Link to="/" className="inline-flex min-h-touch items-center font-display text-lead font-bold text-brand-dark">
           Confidence Card
         </Link>
         <nav aria-label="Main">
