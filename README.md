@@ -2,7 +2,7 @@
 
 A mobile-first prototype that helps NYC food lovers gain confidence in a restaurant in seconds: is the vibe right for my occasion, what does it cost, and what should I order?
 
-This is a **front-end-only** class prototype. All data comes from a local mock layer. Supabase will be the back end later; see [Connecting Supabase](#connecting-supabase).
+This is a class prototype. The front end reads and writes data through a service layer that can run on local mock data or on Supabase; see [Supabase back end](#supabase-back-end).
 
 ## Run it
 
@@ -40,19 +40,20 @@ localStorage.setItem('cc.simulateError', 'true')  // every service call now fail
 localStorage.removeItem('cc.simulateError')       // back to normal
 ```
 
-Saved places are stored in `localStorage` (key `cc.savedPlaces.v1`). Clear that key to reset.
+In mock mode, saved places are stored in `localStorage` (key `cc.savedPlaces.v1`); clear it to reset. In Supabase mode they live in the `saved_places` table.
 
 ## Folder structure
 
 ```
 src/
   types/        Domain types: Restaurant, Dish, Occasion, PriceBand, SavedPlace, filters
-  data/         mockRestaurants.ts, 10 FICTIONAL placeholder restaurants (edit freely)
+  data/         mockRestaurants.ts, 10 FICTIONAL placeholder restaurants (mock fallback + seed source)
   services/     The data access layer
     restaurantService.ts      interface: listRestaurants, getRestaurant
     savedPlaceService.ts      interface: listSavedPlaces, savePlace, removeSavedPlace
     mock/                     in-memory + localStorage implementations, fake latency
-    index.ts                  picks which implementation the app uses
+    supabase/                 Supabase implementations + row mappers
+    index.ts                  picks Supabase (if configured) or mock
   hooks/        useAsync, useRestaurants, useRestaurant, useSavedPlaces, useDocumentTitle
   components/
     layout/     AppShell, BottomNav (mobile), TopNav (tablet/desktop), PageHeader, BackButton
@@ -64,6 +65,7 @@ src/
   pages/        HomePage, RestaurantPage, SavedPage, AddPlacePage, NotFoundPage
   lib/          format, freshness, occasions, placeholderPhoto
   router.tsx    routes
+supabase/            schema.sql (tables + security) and seed.sql (placeholder data)
 tailwind.config.ts   design tokens (colors, radii, spacing, type scale, shadows)
 ```
 
@@ -78,18 +80,33 @@ All design tokens live in `tailwind.config.ts`: the color palette (`cream`, `bra
 - Edit `src/data/mockRestaurants.ts` (it is marked as placeholder data).
 - Photos come from `src/lib/placeholderPhoto.ts` (seeded picsum.photos images, so they are random and not food photos; they need an internet connection). Replace the `photos` arrays with real image URLs whenever you like.
 
-## Connecting Supabase
+## Supabase back end
 
-Nothing Supabase-related is installed or called yet. `.env.example` holds the placeholder variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. To connect later, touch **only** these files:
+The app talks to Supabase when it has a URL and an anon key; without them it silently falls back to the local mock data (handy for offline demos). The switch lives in one file, `src/services/index.ts`.
 
-1. **Install** `@supabase/supabase-js` and copy `.env.example` to `.env.local` with your real values.
-2. **Add `src/lib/supabaseClient.ts`**: create the client from `import.meta.env.VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-3. **Add `src/services/supabase/supabaseRestaurantService.ts`**: implement `RestaurantService` (`listRestaurants`, `getRestaurant`; throw `NotFoundError` when a row is missing).
-4. **Add `src/services/supabase/supabaseSavedPlaceService.ts`**: implement `SavedPlaceService` (`listSavedPlaces`, `savePlace`, `removeSavedPlace`).
-5. **Edit `src/services/index.ts`**: change the two exports to the new Supabase services. This is the only line-level switch.
-6. **Clean up**: delete `src/data/mockRestaurants.ts` and `src/services/mock/` when you no longer need them.
+### One-time setup
 
-No component, hook or page needs to change. If your tables use different column names (for example `photos_updated_at`), map them to the `Restaurant` and `SavedPlace` types inside the Supabase services.
+1. In the Supabase dashboard open **SQL Editor** and run, in this order:
+   1. `supabase/schema.sql`: tables, row level security, policies.
+   2. `supabase/seed.sql`: the 10 placeholder restaurants. (Re-running it replaces them.)
+2. Copy `.env.example` to `.env.local` and paste your **anon (public) key** from *Project Settings > API Keys*:
+   ```bash
+   cp .env.example .env.local
+   ```
+3. Restart `npm run dev`. You should see the 10 seeded places on Home, and saved places appear in the `saved_places` table.
+
+### How it works
+
+- `src/lib/supabaseClient.ts`: creates the client from the env vars (anon key only).
+- `src/lib/deviceId.ts`: a random id per browser (`cc.deviceId` in localStorage). It is sent as the `x-device-id` header, and row level security only lets a device read, add and delete its own `saved_places`. Restaurants are read-only to the app.
+- `src/services/supabase/`: `supabaseRestaurantService.ts`, `supabaseSavedPlaceService.ts` and `mappers.ts` (snake_case database rows to the app's types).
+- `src/data/mockRestaurants.ts` is still the source for `seed.sql`. To change the live data, edit the rows in Supabase (Table Editor) or update `seed.sql`.
+
+### Security notes
+
+- Never put the `service_role` key in this app or in git. Only the anon key belongs in `.env.local`.
+- The device id is "prototype privacy": it keeps testers' lists separate, but anyone who learns a device id could act as that device. Real accounts (Supabase Auth) would replace it.
+- Photos still use placeholder URLs. When you have real photos, upload them to Supabase Storage and update `restaurants.photos`.
 
 ## Accessibility notes
 

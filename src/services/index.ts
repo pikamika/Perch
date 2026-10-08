@@ -1,14 +1,22 @@
 /**
  * The ONLY place that decides which implementation the app uses.
- * To connect Supabase, point these two exports at the Supabase services instead.
+ * With VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY set (see .env.example) the app talks to
+ * Supabase; without them it falls back to the local mock data so the prototype still runs.
  */
+import { isSupabaseConfigured } from '../lib/supabaseClient'
 import { mockRestaurantService } from './mock/mockRestaurantService'
 import { mockSavedPlaceService } from './mock/mockSavedPlaceService'
 import type { RestaurantService } from './restaurantService'
 import type { SavedPlaceService } from './savedPlaceService'
+import { supabaseRestaurantService } from './supabase/supabaseRestaurantService'
+import { supabaseSavedPlaceService } from './supabase/supabaseSavedPlaceService'
 
-export const restaurantService: RestaurantService = mockRestaurantService
-export const savedPlaceService: SavedPlaceService = mockSavedPlaceService
+export const restaurantService: RestaurantService = isSupabaseConfigured
+  ? supabaseRestaurantService
+  : mockRestaurantService
+export const savedPlaceService: SavedPlaceService = isSupabaseConfigured
+  ? supabaseSavedPlaceService
+  : mockSavedPlaceService
 
 export { NotFoundError } from './restaurantService'
 export type { RestaurantService } from './restaurantService'
