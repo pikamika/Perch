@@ -1,14 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
 import './index.css'
+import { router } from './router'
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element not found')
 
 createRoot(rootEl).render(
   <StrictMode>
-    <main className="p-gutter">
-      <h1 className="font-display text-display">Confidence Card</h1>
-    </main>
+    <RouterProvider router={router} />
   </StrictMode>,
 )
