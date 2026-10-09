@@ -27,6 +27,16 @@ const config: Config = {
           DEFAULT: '#F2A93B', // saffron: highlights (dark text on it)
           soft: '#FDEFD2',
         },
+        // Profile picture backgrounds (the 7 choices on the Account page)
+        avatar: {
+          red: '#D63B3B',
+          orange: '#F08A24',
+          yellow: '#F7C531',
+          green: '#2E9E5B',
+          blue: '#2F6FDE',
+          purple: '#7B4FD6',
+          black: '#1B1B1F',
+        },
         success: '#2F6B3F',
         danger: '#B3261E',
       },

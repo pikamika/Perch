@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation, useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { BackButton } from '../components/layout/BackButton'
 import { FreshnessBadge } from '../components/restaurant/FreshnessBadge'
 import { OccasionChips } from '../components/restaurant/OccasionChips'
@@ -13,7 +13,6 @@ import { Chip } from '../components/ui/Chip'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { ExternalIcon } from '../components/ui/icons'
-import { useAuth } from '../hooks/useAuth'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useRestaurant } from '../hooks/useRestaurant'
 import { useSavedPlaces } from '../hooks/useSavedPlaces'
@@ -40,7 +39,7 @@ export function RestaurantPage() {
           <EmptyState
             title="We couldn't find that place"
             description="It may have been removed. Head back to Home to pick another."
-            action={<ButtonLink to="/">Back to Home</ButtonLink>}
+            action={<ButtonLink to="/">Back to Discover</ButtonLink>}
           />
         ) : (
           <ErrorState message="We couldn't load this restaurant." onRetry={reload} />
@@ -121,20 +120,8 @@ function ConfidenceCard({ restaurant, occasion }: { restaurant: Restaurant; occa
   )
 }
 
-/** Save button for signed-in users; signed-out visitors are sent to log in first. */
+/** Save / unsave button for the signed-in user. */
 function SaveControls({ restaurant }: { restaurant: Restaurant }) {
-  const { status } = useAuth()
-  const location = useLocation()
-
-  if (status === 'signed-out') {
-    const next = encodeURIComponent(`${location.pathname}${location.search}`)
-    return <ButtonLink to={`/login?next=${next}`}>Log in to save this place</ButtonLink>
-  }
-  if (status === 'loading') return <SaveButton saved={false} disabled onToggle={() => undefined} />
-  return <SaveToggle restaurant={restaurant} />
-}
-
-function SaveToggle({ restaurant }: { restaurant: Restaurant }) {
   const { state: savedState, reload: reloadSaved, save, remove } = useSavedPlaces()
   const [pending, setPending] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)

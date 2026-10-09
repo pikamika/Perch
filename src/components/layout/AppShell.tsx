@@ -1,8 +1,13 @@
 import { Outlet, ScrollRestoration } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 import { BottomNav } from './BottomNav'
 import { TopNav } from './TopNav'
 
 export function AppShell() {
+  const { status } = useAuth()
+  // Navigation only appears once someone is logged in.
+  const showNav = status === 'signed-in'
+
   return (
     <div className="min-h-screen">
       <a
@@ -11,11 +16,20 @@ export function AppShell() {
       >
         Skip to content
       </a>
-      <TopNav />
-      <main id="main" className="mx-auto w-full max-w-md px-gutter pb-28 pt-6 md:max-w-3xl md:pb-12 lg:max-w-5xl">
+      {showNav ? (
+        <TopNav />
+      ) : (
+        <p className="px-gutter pt-8 text-center font-display text-lead font-bold text-brand-dark">Confidence Card</p>
+      )}
+      <main
+        id="main"
+        className={`mx-auto w-full max-w-md px-gutter pt-6 md:max-w-3xl lg:max-w-5xl ${
+          showNav ? 'pb-28 md:pb-12' : 'pb-12'
+        }`}
+      >
         <Outlet />
       </main>
-      <BottomNav />
+      {showNav ? <BottomNav /> : null}
       <ScrollRestoration />
     </div>
   )

@@ -6,9 +6,12 @@ import {
   type LightingTag,
   type Occasion,
   type PriceBand,
+  type Collection,
+  type Profile,
   type Restaurant,
   type SavedPlace,
 } from '../../types'
+import { isAvatarColor } from '../../lib/avatar'
 
 // Database rows use snake_case. These mappers turn them into the app's domain types
 // and fail loudly if the database returns something unexpected.
@@ -88,4 +91,33 @@ export function toSavedPlace(row: unknown): SavedPlace {
     occasions: strArray(row, 'occasions').map((o) => oneOf<Occasion>(OCCASIONS, o, 'occasions')),
     savedAt: str(row, 'saved_at'),
   }
+}
+
+export function toProfile(row: unknown): Profile {
+  if (!isRecord(row)) throw new Error('Unexpected data: profile row')
+  const color = str(row, 'avatar_color')
+  if (!isAvatarColor(color)) throw new Error(`Unexpected data: "avatar_color" has invalid value "${color}"`)
+  return {
+    id: str(row, 'id'),
+    firstName: str(row, 'first_name'),
+    city: typeof row.city === 'string' ? row.city : '',
+    avatarEmoji: str(row, 'avatar_emoji'),
+    avatarColor: color,
+  }
+}
+
+export function toCollection(row: unknown): Collection {
+  if (!isRecord(row)) throw new Error('Unexpected data: collection row')
+  const items = Array.isArray(row.collection_restaurants) ? row.collection_restaurants : []
+  const restaurants = items
+    .filter(isRecord)
+    .map((item) => ({
+      position: typeof item.position === 'number' ? item.position : 0,
+      // The embedded restaurant arrives as an object (or a one-item list, depending on the API version).
+      restaurant: Array.isArray(item.restaurant) ? item.restaurant[0] : item.restaurant,
+    }))
+    .filter((item) => item.restaurant !== undefined && item.restaurant !== null)
+    .sort((a, b) => a.position - b.position)
+    .map((item) => toRestaurant(item.restaurant))
+  return { id: str(row, 'id'), title: str(row, 'title'), subtitle: optStr(row, 'subtitle'), restaurants }
 }

@@ -1,6 +1,8 @@
+import type { NewProfileInput } from '../../types'
 import type { AuthService, AuthUser } from '../authService'
 import { AuthError } from '../authService'
 import { simulateNetwork } from './delay'
+import { saveMockProfile } from './mockProfileStore'
 
 /**
  * Offline stand-in for Supabase Auth: accepts any email and password and remembers the
@@ -9,7 +11,8 @@ import { simulateNetwork } from './delay'
 const STORAGE_KEY = 'cc.mockUser'
 const listeners = new Set<(user: AuthUser | null) => void>()
 
-function read(): AuthUser | null {
+/** The current mock user, read straight from storage. */
+export function readMockUser(): AuthUser | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
@@ -42,7 +45,7 @@ function login(email: string): AuthUser {
 
 export const mockAuthService: AuthService = {
   async getUser() {
-    return read()
+    return readMockUser()
   },
 
   onChange(listener) {
@@ -52,9 +55,11 @@ export const mockAuthService: AuthService = {
     }
   },
 
-  async signUp(email) {
+  async signUp(email, _password, profile: NewProfileInput) {
     await simulateNetwork(300, 500)
-    return { status: 'signed-in', user: login(email) }
+    const user = login(email)
+    saveMockProfile({ id: user.id, ...profile })
+    return { status: 'signed-in', user }
   },
 
   async signIn(email) {

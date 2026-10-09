@@ -1,3 +1,5 @@
 export * from './restaurant'
 export * from './saved'
 export * from './filters'
+export * from './profile'
+export * from './collection'

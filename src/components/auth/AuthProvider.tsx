@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       status: user === undefined ? 'loading' : user ? 'signed-in' : 'signed-out',
       user: user ?? null,
-      signUp: (email, password) => authService.signUp(email, password),
+      signUp: (email, password, profile) => authService.signUp(email, password, profile),
       signIn: async (email, password) => {
         await authService.signIn(email, password)
       },

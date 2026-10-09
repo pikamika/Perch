@@ -3,7 +3,7 @@ import { RequireAuth } from './components/auth/RequireAuth'
 import { AppShell } from './components/layout/AppShell'
 import { AccountPage } from './pages/AccountPage'
 import { AddPlacePage } from './pages/AddPlacePage'
-import { HomePage } from './pages/HomePage'
+import { DiscoverPage } from './pages/DiscoverPage'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { RestaurantPage } from './pages/RestaurantPage'
@@ -14,20 +14,20 @@ export const router = createBrowserRouter([
   {
     element: <AppShell />,
     children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/place/:id', element: <RestaurantPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/signup', element: <SignupPage /> },
       {
-        // Pages that need an account
+        // Everything else needs an account
         element: <RequireAuth />,
         children: [
+          { path: '/', element: <DiscoverPage /> },
+          { path: '/place/:id', element: <RestaurantPage /> },
           { path: '/saved', element: <SavedPage /> },
           { path: '/add', element: <AddPlacePage /> },
           { path: '/account', element: <AccountPage /> },
+          { path: '*', element: <NotFoundPage /> },
         ],
       },
-      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])

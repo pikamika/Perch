@@ -47,12 +47,21 @@ export const supabaseAuthService: AuthService = {
     return () => data.subscription.unsubscribe()
   },
 
-  async signUp(email, password) {
+  async signUp(email, password, profile) {
     const { data, error } = await getSupabase().auth.signUp({
       email,
       password,
       // Where the confirmation link sends people back to (must be allowed in Supabase URL settings).
-      options: { emailRedirectTo: `${window.location.origin}/` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        // A database trigger turns this metadata into the person's profile row.
+        data: {
+          first_name: profile.firstName,
+          city: profile.city,
+          avatar_emoji: profile.avatarEmoji,
+          avatar_color: profile.avatarColor,
+        },
+      },
     })
     if (error) throw friendly(error)
 

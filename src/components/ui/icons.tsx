@@ -65,3 +65,31 @@ export const UserIcon = (props: IconProps) => (
     <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
   </Icon>
 )
+
+export const CompassIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M15.5 8.5l-2 5-5 2 2-5z" />
+  </Icon>
+)
+
+export const EyeIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+  </Icon>
+)
+
+export const EyeOffIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M3 3l18 18" />
+    <path d="M10.6 6.1A10.7 10.7 0 0112 6c6.5 0 10 6 10 6a17 17 0 01-3.2 3.9M6.6 7.6A16.6 16.6 0 002 12s3.5 6 10 6a10 10 0 004.4-1" />
+    <path d="M9.9 9.9a3 3 0 004.2 4.2" />
+  </Icon>
+)
+
+export const ChevronRightIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M9 18l6-6-6-6" />
+  </Icon>
+)

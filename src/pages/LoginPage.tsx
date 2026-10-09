@@ -15,7 +15,7 @@ export function LoginPage() {
 
   return (
     <div className="md:mx-auto md:max-w-md">
-      <PageHeader title="Welcome back" subtitle="Log in to see your saved places." />
+      <PageHeader title="Welcome back" subtitle="Log in to pick up where you left off." />
       <AuthForm mode="login" next={next} />
     </div>
   )

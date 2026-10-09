@@ -1,16 +1,15 @@
 import { NavLink } from 'react-router-dom'
-import { useNavItems } from './navItems'
+import { NAV_ITEMS } from './navItems'
 
 /** Mobile tab bar. Hidden from md up, where the top bar takes over. */
 export function BottomNav() {
-  const navItems = useNavItems()
   return (
     <nav
       aria-label="Main"
       className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-nav md:hidden"
     >
       <ul className="mx-auto flex max-w-md">
-        {navItems.map((item) => (
+        {NAV_ITEMS.map((item) => (
           <li key={item.to} className="flex-1">
             <NavLink
               to={item.to}

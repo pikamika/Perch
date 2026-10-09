@@ -1,3 +1,5 @@
+import type { NewProfileInput } from '../types'
+
 export interface AuthUser {
   id: string
   email: string
@@ -22,7 +24,8 @@ export interface AuthService {
   getUser(): Promise<AuthUser | null>
   /** Calls the listener whenever someone signs in or out. Returns an unsubscribe function. */
   onChange(listener: (user: AuthUser | null) => void): () => void
-  signUp(email: string, password: string): Promise<SignUpResult>
+  /** Creates the account; the profile details are stored with it. */
+  signUp(email: string, password: string, profile: NewProfileInput): Promise<SignUpResult>
   signIn(email: string, password: string): Promise<AuthUser>
   signOut(): Promise<void>
 }

@@ -24,12 +24,16 @@ Other scripts:
 
 ## What's in the app
 
-- **Home (`/`)**: pick an occasion and an optional budget; get the top 3 matches. Choices live in the URL (`/?occasion=date&budget=30`).
+Everything except Log in and Create account needs an account; the navigation bar only appears once you are logged in.
+
+- **Log in / Create account (`/login`, `/signup`)**: email and password. Sign-up also asks for first name and city. The button stays disabled until every field is filled; the eye icon inside the password field shows or hides it.
+- **Discover (`/`)**: "Hi {first name}", your city, round occasion shortcuts, an optional budget, your top 3 picks, then swipeable sections like "Trending on TikTok" and "Flushing food crawl eats". The occasion and budget filter every section. Choices live in the URL (`/?occasion=date&budget=30`).
 - **Confidence card (`/place/:id`)**: swipeable photos, best-for chips (your occasion is highlighted), price, what to order, photo freshness, save button.
-- **Saved (`/saved`)**: your saved places, filterable by occasion, with an empty state. Needs an account.
-- **Add a place (`/add`)**: paste a link and a name; saves it to your list (no link parsing). Needs an account.
-- **Log in / Create account (`/login`, `/signup`)**: email and password. Browsing is public; Saved, Add and Account send signed-out visitors to log in first and bring them back afterwards.
-- **Account (`/account`)**: shows who is signed in and lets them log out.
+- **Saved (`/saved`)**: your saved places, filterable by occasion, with an empty state.
+- **Add a place (`/add`)**: paste a link and a name; saves it to your list (no link parsing).
+- **Account (`/account`)**: edit your first name (cannot be empty), location and profile picture (any emoji on one of 7 background colors; new accounts start with a random food emoji on a background that contrasts with it). Email is shown but cannot be changed. Log out lives here.
+
+Your city is saved and shown, but it does not filter results yet: restaurants only have a neighborhood, so there is nothing to match it against.
 
 Every screen has loading, empty and error states. The mock service waits 200 to 600 ms so you can see them.
 
@@ -60,11 +64,11 @@ src/
   components/
     layout/     AppShell, BottomNav (mobile), TopNav (tablet/desktop), PageHeader, BackButton
     ui/         Button, Chip, TextField, Skeleton, EmptyState, ErrorState, icons...
-    home/       OccasionPicker, BudgetSlider, PicksSkeleton
+    discover/   OccasionPicker, BudgetSlider, RestaurantRow, RowSkeleton
     restaurant/ RestaurantCardCompact, PhotoStrip, OccasionChips, WhatToOrder, ...
     saved/      SavedItem, OccasionFilter, SavedSkeleton
     add/        AddPlaceForm
-  pages/        HomePage, RestaurantPage, SavedPage, AddPlacePage, NotFoundPage
+  pages/        DiscoverPage, RestaurantPage, SavedPage, AddPlacePage, LoginPage, SignupPage, AccountPage, NotFoundPage
   lib/          format, freshness, occasions, placeholderPhoto
   router.tsx    routes
 supabase/            schema.sql (tables + security) and seed.sql (placeholder data)
@@ -90,8 +94,8 @@ The app talks to Supabase when it has a URL and an anon key; without them it sil
 
 1. In the Supabase dashboard open **SQL Editor** and run, in this order:
    1. `supabase/schema.sql`: tables, row level security, policies.
-   2. `supabase/seed.sql`: the 10 placeholder restaurants. (Re-running it replaces them.)
-   (Project created with the older device-id version? Run `supabase/migrations/001_saved_places_belong_to_users.sql` instead of `schema.sql`.)
+   2. `supabase/seed.sql`: the 14 placeholder restaurants and the 5 Discover collections. (Re-running it replaces them.)
+   (Project created with the older device-id version? See `supabase/migrations/README.md`.)
 2. Copy `.env.example` to `.env.local` and paste your **anon (public) key** from *Project Settings > API Keys*:
    ```bash
    cp .env.example .env.local
@@ -117,7 +121,9 @@ With no Supabase variables set (mock mode), login accepts any email and password
 
 - `src/lib/supabaseClient.ts`: creates the client from the env vars (anon key only). The session is kept in localStorage and refreshed automatically.
 - `src/services/authService.ts` plus `supabase/supabaseAuthService.ts` and `mock/mockAuthService.ts`: sign up, log in, log out, current user. `src/components/auth/AuthProvider.tsx` and `src/hooks/useAuth.ts` expose it to the UI; `RequireAuth.tsx` guards the account-only routes.
-- `src/services/supabase/`: `supabaseRestaurantService.ts`, `supabaseSavedPlaceService.ts` and `mappers.ts` (snake_case database rows to the app's types).
+- `src/services/supabase/`: restaurant, saved place, profile, collection and auth services plus `mappers.ts` (snake_case database rows to the app's types).
+- `profiles` table: first name, city, avatar emoji and color. A database trigger creates the row at sign-up from the details the sign-up form sends, so it works whether or not email confirmation is on. The Account page edits it (row level security: users only touch their own row).
+- `collections` and `collection_restaurants` tables: the editorial sections on Discover. Edit them in the Supabase Table Editor to change what shows up and in what order (`sort_order`, `position`).
 - `saved_places` rows belong to a user (`user_id` fills itself from the session). Row level security lets a signed-in user read, add and delete only their own rows; signed-out visitors have no access. Restaurants are readable by everyone and read-only to the app.
 - `src/data/mockRestaurants.ts` is still the source for `seed.sql`. To change the live data, edit the rows in Supabase (Table Editor) or update `seed.sql`.
 

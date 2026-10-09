@@ -7,11 +7,12 @@ interface Props {
   onChange: (occasion: Occasion | undefined) => void
 }
 
+/** Round emoji tiles in a row, like the cuisine shortcuts on a food-delivery app. */
 export function OccasionPicker({ selected, onChange }: Props) {
   return (
     <fieldset>
-      <legend className="mb-2 font-semibold">What&rsquo;s the occasion?</legend>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <legend className="sr-only">What&rsquo;s the occasion?</legend>
+      <div className="flex justify-between gap-2 md:justify-start md:gap-6">
         {OCCASIONS.map((occasion) => {
           const isSelected = occasion === selected
           const { label, emoji } = OCCASION_META[occasion]
@@ -21,16 +22,17 @@ export function OccasionPicker({ selected, onChange }: Props) {
               type="button"
               aria-pressed={isSelected}
               onClick={() => onChange(isSelected ? undefined : occasion)}
-              className={`flex min-h-[4rem] items-center gap-3 rounded-card border-2 px-4 text-left font-semibold transition-colors ${
-                isSelected
-                  ? 'border-brand bg-brand-soft text-brand-dark'
-                  : 'border-line bg-surface hover:bg-sand'
-              }`}
+              className="flex min-h-touch w-[4.75rem] flex-col items-center gap-1.5 rounded-card py-1"
             >
-              <span aria-hidden="true" className="text-2xl">
+              <span
+                aria-hidden="true"
+                className={`flex h-16 w-16 items-center justify-center rounded-full text-3xl transition-colors ${
+                  isSelected ? 'bg-brand ring-2 ring-brand ring-offset-2 ring-offset-cream' : 'bg-sand'
+                }`}
+              >
                 {emoji}
               </span>
-              {label}
+              <span className={`text-caption font-semibold ${isSelected ? 'text-brand-dark' : 'text-ink'}`}>{label}</span>
             </button>
           )
         })}

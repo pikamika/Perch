@@ -1,13 +1,15 @@
-import { useId, type InputHTMLAttributes, type Ref } from 'react'
+import { useId, type InputHTMLAttributes, type ReactNode, type Ref } from 'react'
 
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   hint?: string
   error?: string
+  /** Shown inside the right edge of the input, e.g. a show/hide password button. */
+  endAdornment?: ReactNode
   ref?: Ref<HTMLInputElement>
 }
 
-export function TextField({ label, hint, error, ref, className = '', ...props }: TextFieldProps) {
+export function TextField({ label, hint, error, endAdornment, ref, className = '', readOnly, ...props }: TextFieldProps) {
   const id = useId()
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
@@ -23,16 +25,20 @@ export function TextField({ label, hint, error, ref, className = '', ...props }:
           {hint}
         </p>
       ) : null}
-      <input
-        id={id}
-        ref={ref}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        className={`min-h-touch w-full rounded-chip border-2 bg-surface px-4 text-body placeholder:text-ink-muted ${
-          error ? 'border-danger' : 'border-line'
-        } ${className}`}
-        {...props}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          ref={ref}
+          readOnly={readOnly}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          className={`min-h-touch w-full rounded-chip border-2 px-4 text-body placeholder:text-ink-muted ${
+            readOnly ? 'cursor-default border-line bg-sand text-ink-muted' : 'bg-surface'
+          } ${error ? 'border-danger' : readOnly ? '' : 'border-line'} ${endAdornment ? 'pr-14' : ''} ${className}`}
+          {...props}
+        />
+        {endAdornment ? <div className="absolute inset-y-0 right-1 flex items-center">{endAdornment}</div> : null}
+      </div>
       {error ? (
         <p id={errorId} className="mt-1 text-caption font-semibold text-danger">
           {error}
