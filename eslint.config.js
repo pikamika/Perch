@@ -31,8 +31,8 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/data/*', '**/services/mock/*'],
-              message: 'Use the services in src/services instead of importing mock data directly.',
+              group: ['**/data/*', '**/services/mock/*', '**/services/supabase/*', '**/lib/supabaseClient'],
+              message: 'Use the services in src/services instead of importing mock data or Supabase directly.',
             },
           ],
         },
