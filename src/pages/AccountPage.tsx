@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/layout/PageHeader'
 import { AccountForm } from '../components/profile/AccountForm'
+import { Avatar } from '../components/profile/Avatar'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingStatus } from '../components/ui/LoadingStatus'
@@ -33,9 +34,12 @@ export function AccountPage() {
     <div className="md:mx-auto md:max-w-md">
       <PageHeader title="Account" />
 
+      <div className="mb-6 flex justify-center">
+        <Avatar size="lg" label="Your profile picture" />
+      </div>
+
       {status === 'loading' && (
         <LoadingStatus label="Loading your account">
-          <Skeleton className="mx-auto mb-4 h-28 w-28 rounded-full" />
           <Skeleton className="mb-3 h-14 w-full" />
           <Skeleton className="h-14 w-full" />
         </LoadingStatus>

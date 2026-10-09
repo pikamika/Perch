@@ -1,4 +1,3 @@
-import { isAvatarColor } from '../../lib/avatar'
 import type { Profile } from '../../types'
 
 /** Mock-mode profiles live in localStorage, keyed by (mock) user id. */
@@ -18,18 +17,9 @@ function readAll(): Record<string, Profile> {
       if (
         isRecord(value) &&
         typeof value.firstName === 'string' &&
-        typeof value.city === 'string' &&
-        typeof value.avatarEmoji === 'string' &&
-        typeof value.avatarColor === 'string' &&
-        isAvatarColor(value.avatarColor)
+        typeof value.city === 'string'
       ) {
-        result[id] = {
-          id,
-          firstName: value.firstName,
-          city: value.city,
-          avatarEmoji: value.avatarEmoji,
-          avatarColor: value.avatarColor,
-        }
+        result[id] = { id, firstName: value.firstName, city: value.city }
       }
     }
     return result

@@ -1,4 +1,3 @@
-import { randomAvatar } from '../../lib/avatar'
 import type { Profile } from '../../types'
 import type { ProfileService } from '../profileService'
 import { readMockUser } from './mockAuthService'
@@ -21,7 +20,6 @@ export const mockProfileService: ProfileService = {
       id: user.id,
       firstName: user.email.split('@')[0] || 'Friend',
       city: '',
-      ...randomAvatar(),
     }
     saveMockProfile(created)
     return created

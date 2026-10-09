@@ -1,4 +1,3 @@
-import { randomAvatar } from '../../lib/avatar'
 import { getSupabase } from '../../lib/supabaseClient'
 import type { ProfileService } from '../profileService'
 import { toProfile } from './mappers'
@@ -20,15 +19,9 @@ export const supabaseProfileService: ProfileService = {
 
     // Accounts created before profiles existed have no row yet: make a default one.
     const user = await currentUser()
-    const { avatarEmoji, avatarColor } = randomAvatar()
     const created = await supabase
       .from('profiles')
-      .insert({
-        first_name: user.email?.split('@')[0] || 'Friend',
-        city: '',
-        avatar_emoji: avatarEmoji,
-        avatar_color: avatarColor,
-      })
+      .insert({ first_name: user.email?.split('@')[0] || 'Friend', city: '' })
       .select('*')
       .single()
     if (created.error) throw new Error(created.error.message)
@@ -40,8 +33,6 @@ export const supabaseProfileService: ProfileService = {
     const row: Record<string, string> = {}
     if (update.firstName !== undefined) row.first_name = update.firstName
     if (update.city !== undefined) row.city = update.city
-    if (update.avatarEmoji !== undefined) row.avatar_emoji = update.avatarEmoji
-    if (update.avatarColor !== undefined) row.avatar_color = update.avatarColor
 
     const { data, error } = await getSupabase().from('profiles').update(row).eq('id', user.id).select('*').single()
     if (error) throw new Error(error.message)

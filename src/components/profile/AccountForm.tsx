@@ -4,26 +4,20 @@ import { useProfile } from '../../hooks/useProfile'
 import type { Profile } from '../../types'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
-import { AvatarEditor } from './AvatarEditor'
 
-/** Edit name, location and profile picture. Email is shown but cannot be changed. */
+/** Edit name and location. Email is shown but cannot be changed. */
 export function AccountForm({ profile }: { profile: Profile }) {
   const { user } = useAuth()
   const { update } = useProfile()
 
   const [firstName, setFirstName] = useState(profile.firstName)
   const [city, setCity] = useState(profile.city)
-  const [avatar, setAvatar] = useState({ emoji: profile.avatarEmoji, color: profile.avatarColor })
   const [nameTouched, setNameTouched] = useState(false)
   const [pending, setPending] = useState(false)
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
 
   const nameEmpty = firstName.trim() === ''
-  const dirty =
-    firstName.trim() !== profile.firstName ||
-    city.trim() !== profile.city ||
-    avatar.emoji !== profile.avatarEmoji ||
-    avatar.color !== profile.avatarColor
+  const dirty = firstName.trim() !== profile.firstName || city.trim() !== profile.city
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -32,12 +26,7 @@ export function AccountForm({ profile }: { profile: Profile }) {
     setPending(true)
     setMessage(null)
     try {
-      const saved = await update({
-        firstName: firstName.trim(),
-        city: city.trim(),
-        avatarEmoji: avatar.emoji,
-        avatarColor: avatar.color,
-      })
+      const saved = await update({ firstName: firstName.trim(), city: city.trim() })
       setFirstName(saved.firstName)
       setCity(saved.city)
       setMessage({ kind: 'ok', text: 'Saved. Your changes are live.' })
@@ -50,13 +39,6 @@ export function AccountForm({ profile }: { profile: Profile }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-8">
-      <section aria-labelledby="picture-heading" className="rounded-card bg-surface p-5 shadow-card">
-        <h2 id="picture-heading" className="mb-4 font-display text-title">
-          Profile picture
-        </h2>
-        <AvatarEditor emoji={avatar.emoji} color={avatar.color} onChange={setAvatar} />
-      </section>
-
       <section aria-labelledby="details-heading" className="space-y-5 rounded-card bg-surface p-5 shadow-card">
         <h2 id="details-heading" className="font-display text-title">
           Your details

@@ -37,7 +37,7 @@ Everything except Log in and Create account needs an account; the navigation bar
 - **Cafe page (`/place/:id`)**: swipeable photos, a one-glance verdict ("Great for working", "Works in a pinch", "Better for a quick stop"), and a **Work check** with Wi-Fi (free, with purchase or none, plus speed and whether the network is password-protected), outlets, seating, noise, laptop policy, best time to work, busiest times, and how recently those details were checked. Then what to order, what it costs, vibe, and a save button.
 - **Saved (`/saved`)**: your saved cafes, filterable by purpose, with an empty state.
 - **Add a cafe (`/add`)**: paste a TikTok, Instagram or Google Maps link and a name; saves it to your list (no link parsing).
-- **Account (`/account`)**: edit your first name (cannot be empty), location and profile picture (any emoji on one of 7 background colors; new accounts start with a random food emoji on a background that contrasts with it). Email is shown but cannot be changed. Log out lives here.
+- **Account (`/account`)**: edit your first name (cannot be empty) and location. Email is shown but cannot be changed. Everyone's profile picture is the same coffee cup. Log out lives here.
 
 Your city is saved and shown, but it does not filter results yet: cafes only have a neighborhood, so there is nothing to match it against.
 
@@ -77,7 +77,7 @@ src/
     saved/      SavedItem, PurposeFilter, SavedSkeleton
     add/        AddPlaceForm
   pages/        DiscoverPage, CafePage, SavedPage, AddPlacePage, LoginPage, SignupPage, AccountPage, NotFoundPage
-  lib/          brand, work (ranking + labels), filterCafes, freshness, purposes, avatar, placeholderPhoto
+  lib/          brand, work (ranking + labels), filterCafes, freshness, purposes, placeholderPhoto
   router.tsx    routes
 supabase/            schema.sql (tables + security) and seed.sql (placeholder data)
 tailwind.config.ts   design tokens (colors, radii, spacing, type scale, shadows)
@@ -87,7 +87,9 @@ Components and hooks only talk to `src/services`. They never import `src/data` (
 
 ## Changing the look
 
-All design tokens live in `tailwind.config.ts`: the color palette (`cream`, `brand`, `accent`, `ink`...), radii (`rounded-card`, `rounded-chip`), the 44px touch size (`min-h-touch`), the type scale (`text-title`, `text-display`...) and shadows. Change them there and the whole app follows.
+All design tokens live in `tailwind.config.ts`: the coffee-earthtone color palette (`cream`, `brand`, `accent`, `ink`...), radii (`rounded-card`, `rounded-chip`), the 44px touch size (`min-h-touch`), the type scale (`text-title`, `text-display`...) and shadows. Change them there and the whole app follows.
+
+Fonts: headings use Fraunces (its rounded "soft" variant, bundled via `@fontsource-variable/fraunces`, so no external font requests); body text uses a clean sans-serif (Inter if installed, otherwise the system font). The font families are set in `tailwind.config.ts` and applied to headings in `src/index.css`.
 
 ## Changing the data
 
@@ -130,7 +132,7 @@ With no Supabase variables set (mock mode), login accepts any email and password
 - `src/lib/supabaseClient.ts`: creates the client from the env vars (anon key only). The session is kept in localStorage and refreshed automatically.
 - `src/services/authService.ts` plus `supabase/supabaseAuthService.ts` and `mock/mockAuthService.ts`: sign up, log in, log out, current user. `src/components/auth/AuthProvider.tsx` and `src/hooks/useAuth.ts` expose it to the UI; `RequireAuth.tsx` guards the account-only routes.
 - `src/services/supabase/`: cafe, saved place, profile, collection and auth services plus `mappers.ts` (snake_case database rows to the app's types).
-- `profiles` table: first name, city, avatar emoji and color. A database trigger creates the row at sign-up from the details the sign-up form sends, so it works whether or not email confirmation is on. The Account page edits it (row level security: users only touch their own row).
+- `profiles` table: first name and city. A database trigger creates the row at sign-up from the details the sign-up form sends, so it works whether or not email confirmation is on. The Account page edits it (row level security: users only touch their own row).
 - `collections` and `collection_cafes` tables: the editorial sections on Discover. Edit them in the Supabase Table Editor to change what shows up and in what order (`sort_order`, `position`).
 - `saved_places` rows belong to a user (`user_id` fills itself from the session). Row level security lets a signed-in user read, add and delete only their own rows; signed-out visitors have no access. `cafes` are readable by everyone and read-only to the app.
 - `src/data/mockCafes.ts` and `mockCollections.ts` are still the source for `seed.sql`. To change the live data, edit the rows in Supabase (Table Editor) or update `seed.sql`.

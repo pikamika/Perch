@@ -21,7 +21,6 @@ import {
   type Cafe,
   type SavedPlace,
 } from '../../types'
-import { isAvatarColor } from '../../lib/avatar'
 
 // Database rows use snake_case. These mappers turn them into the app's domain types
 // and fail loudly if the database returns something unexpected.
@@ -124,14 +123,10 @@ export function toSavedPlace(row: unknown): SavedPlace {
 
 export function toProfile(row: unknown): Profile {
   if (!isRecord(row)) throw new Error('Unexpected data: profile row')
-  const color = str(row, 'avatar_color')
-  if (!isAvatarColor(color)) throw new Error(`Unexpected data: "avatar_color" has invalid value "${color}"`)
   return {
     id: str(row, 'id'),
     firstName: str(row, 'first_name'),
     city: typeof row.city === 'string' ? row.city : '',
-    avatarEmoji: str(row, 'avatar_emoji'),
-    avatarColor: color,
   }
 }
 

@@ -10,6 +10,17 @@
     @apply bg-cream font-sans text-body text-ink antialiased;
   }
   /* Visible keyboard focus everywhere */
+  /* Headings use the soft, rounded Fraunces; everything else stays in the sans-serif. */
+  h1,
+  h2 {
+    font-family: theme('fontFamily.display');
+  }
+  h1,
+  h2,
+  .font-display {
+    font-variation-settings: 'SOFT' 100;
+    font-optical-sizing: auto;
+  }
   :focus-visible {
     @apply outline-none ring-2 ring-focus ring-offset-2 ring-offset-cream;
   }

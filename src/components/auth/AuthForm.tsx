@@ -1,7 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { randomAvatar } from '../../lib/avatar'
 import { AuthError } from '../../services'
 import { Button, ButtonLink } from '../ui/Button'
 import { PasswordField } from '../ui/PasswordField'
@@ -72,12 +71,7 @@ export function AuthForm({ mode, next }: Props) {
     setPending(true)
     try {
       if (isSignup) {
-        const result = await signUp(trimmedEmail, password, {
-          firstName: trimmedName,
-          city: trimmedCity,
-          // Everyone starts with a random food emoji on a background that contrasts with it.
-          ...randomAvatar(),
-        })
+        const result = await signUp(trimmedEmail, password, { firstName: trimmedName, city: trimmedCity })
         if (result.status === 'confirmation-required') {
           setConfirmEmail(trimmedEmail)
           return

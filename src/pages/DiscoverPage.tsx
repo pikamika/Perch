@@ -69,7 +69,7 @@ export function DiscoverPage() {
             aria-label="Your account"
             className="flex h-touch w-touch shrink-0 items-center justify-center rounded-full"
           >
-            <Avatar emoji={profile.avatarEmoji} color={profile.avatarColor} />
+            <Avatar />
           </Link>
         ) : null}
       </header>

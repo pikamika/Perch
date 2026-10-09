@@ -9,36 +9,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm, food-friendly palette. Text pairs below are checked for >= 4.5:1 contrast.
-        cream: '#FFF8F0', // page background
-        surface: '#FFFFFF', // cards
-        sand: '#F6EBDD', // subtle fills, skeletons
-        line: '#E8D9C7', // borders
+        // Coffee earthtones: latte cream backgrounds, espresso text, roasted-brown actions.
+        // Text/background pairs are checked for >= 4.5:1 contrast.
+        cream: '#F7F0E6', // page background (latte foam)
+        surface: '#FFFCF7', // cards (warm white)
+        sand: '#EDE1D0', // subtle fills, skeletons (oat milk)
+        line: '#DCCBB5', // borders (parchment)
         ink: {
-          DEFAULT: '#2B1A12', // primary text (espresso)
-          muted: '#6B5448', // secondary text
+          DEFAULT: '#2A1D14', // primary text (espresso)
+          muted: '#65574A', // secondary text (mocha)
         },
         brand: {
-          DEFAULT: '#C8452B', // tomato: primary buttons (white text on it)
-          dark: '#A53520', // hover / pressed
-          soft: '#FBE3DB', // tinted backgrounds
+          DEFAULT: '#6B4A33', // coffee brown: primary buttons (white text on it)
+          dark: '#472F1F', // hover / pressed, brand text (dark roast)
+          soft: '#EADBC7', // tinted backgrounds (latte)
         },
         accent: {
-          DEFAULT: '#F2A93B', // saffron: highlights (dark text on it)
-          soft: '#FDEFD2',
+          DEFAULT: '#C89A62', // caramel: highlights (dark text on it)
+          soft: '#F3E3C9', // cream and honey
         },
-        // Profile picture backgrounds (the 7 choices on the Account page)
-        avatar: {
-          red: '#D63B3B',
-          orange: '#F08A24',
-          yellow: '#F7C531',
-          green: '#2E9E5B',
-          blue: '#2F6FDE',
-          purple: '#7B4FD6',
-          black: '#1B1B1F',
-        },
-        success: '#2F6B3F',
-        danger: '#B3261E',
+        success: '#4C6B34', // olive
+        danger: '#A33B2C', // terracotta
       },
       borderRadius: {
         chip: '0.75rem',
@@ -51,23 +42,25 @@ const config: Config = {
         gutter: '1rem',
       },
       fontFamily: {
+        // Body text: clean sans-serif for legibility.
         sans: ['"Inter"', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif'],
-        display: ['"Fraunces"', 'ui-serif', 'Georgia', 'Cambria', 'serif'],
+        // Headings: Fraunces (soft axis), a rounded, warm serif with a cafe-menu feel.
+        display: ['"Fraunces Variable"', '"Fraunces"', 'ui-serif', 'Georgia', 'Cambria', 'serif'],
       },
       fontSize: {
         // Type scale: [size, { lineHeight, fontWeight? }]
         caption: ['0.8125rem', { lineHeight: '1.15rem' }],
         body: ['1rem', { lineHeight: '1.5rem' }],
         lead: ['1.125rem', { lineHeight: '1.6rem' }],
-        title: ['1.5rem', { lineHeight: '1.9rem', fontWeight: '700' }],
-        display: ['2rem', { lineHeight: '2.4rem', fontWeight: '700' }],
+        title: ['1.5rem', { lineHeight: '1.9rem', fontWeight: '600' }],
+        display: ['2rem', { lineHeight: '2.4rem', fontWeight: '600' }],
       },
       boxShadow: {
-        card: '0 2px 12px rgba(43, 26, 18, 0.08)',
-        nav: '0 -2px 16px rgba(43, 26, 18, 0.08)',
+        card: '0 2px 12px rgba(71, 47, 31, 0.10)',
+        nav: '0 -2px 16px rgba(71, 47, 31, 0.10)',
       },
       ringColor: {
-        focus: '#1F5FBF',
+        focus: '#2B5C8A',
       },
     },
   },
