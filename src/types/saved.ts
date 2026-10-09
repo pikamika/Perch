@@ -1,19 +1,19 @@
-import type { Occasion } from './restaurant'
+import type { Purpose } from './cafe'
 
 export interface SavedPlace {
   id: string
-  /** Set when saved from a confidence card; absent for places added by link. */
-  restaurantId?: string
+  /** Set when saved from a cafe page; absent for places added by link. */
+  cafeId?: string
   name: string
   sourceUrl?: string
-  occasions: Occasion[]
+  purposes: Purpose[]
   /** ISO timestamp. */
   savedAt: string
 }
 
 export interface SavePlaceInput {
-  restaurantId?: string
+  cafeId?: string
   name: string
   sourceUrl?: string
-  occasions?: Occasion[]
+  purposes?: Purpose[]
 }

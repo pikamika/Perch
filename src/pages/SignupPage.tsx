@@ -15,7 +15,7 @@ export function SignupPage() {
 
   return (
     <div className="md:mx-auto md:max-w-md">
-      <PageHeader title="Create your account" subtitle="Save places and keep your shortlist across devices." />
+      <PageHeader title="Create your account" subtitle="Find cafes with Wi-Fi, outlets and a seat before you leave home." />
       <AuthForm mode="signup" next={next} />
     </div>
   )

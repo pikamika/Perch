@@ -1,30 +1,41 @@
--- Confidence Card: database schema
+-- Perch: database schema
 -- Run this FIRST in the Supabase dashboard: SQL Editor > New query > paste > Run.
 -- Then run seed.sql. Safe to re-run on a fresh project (uses IF NOT EXISTS / DROP POLICY IF EXISTS).
--- Already ran an older version (device-id based saved places)? Run
--- supabase/migrations/001_saved_places_belong_to_users.sql instead.
+-- Upgrading an older project? See supabase/migrations/README.md.
 
 create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------------
--- restaurants: public, read-only from the app
+-- cafes: public, read-only from the app
 -- ---------------------------------------------------------------------------
-create table if not exists public.restaurants (
+create table if not exists public.cafes (
   id                       uuid primary key default gen_random_uuid(),
   name                     text not null,
   neighborhood             text not null,
-  cuisine                  text not null,
+  specialty                text not null,
+  chain_name               text,
   price_band               text not null check (price_band in ('$', '$$', '$$$')),
   typical_spend_per_person integer not null check (typical_spend_per_person >= 0),
   photos                   text[] not null check (cardinality(photos) between 3 and 5),
   lighting                 text not null check (lighting in ('natural', 'warm', 'dim', 'neon')),
   best_for                 text[] not null default '{}'
-                             check (best_for <@ array['date', 'birthday', 'friends', 'solo']),
+                             check (best_for <@ array['focus', 'calls', 'sprint', 'walk']),
   vibe_tags                text[] not null default '{}',
-  -- array of { "name": text, "note": text (optional) }, 2 to 3 dishes
+  -- array of { "name": text, "note": text (optional) }
   what_to_order            jsonb not null check (jsonb_typeof(what_to_order) = 'array'),
   photos_updated_at        date not null,
   source_url               text,
+  -- Work details
+  wifi                     text not null check (wifi in ('free', 'free-with-purchase', 'paid', 'none')),
+  wifi_speed               text check (wifi_speed in ('fast', 'ok', 'slow')),
+  wifi_secured             boolean not null default false,
+  outlets                  text not null check (outlets in ('plenty', 'some', 'few', 'none')),
+  seating                  text not null check (seating in ('plenty', 'some', 'limited')),
+  noise                    text not null check (noise in ('quiet', 'moderate', 'loud')),
+  laptop_friendly          boolean not null default true,
+  best_time_to_work        text not null default '',
+  busiest_times            text not null default '',
+  work_info_updated_at     date not null,
   created_at               timestamptz not null default now()
 );
 
@@ -32,35 +43,37 @@ create table if not exists public.restaurants (
 -- saved_places: owned by a signed-in user (Supabase Auth)
 -- ---------------------------------------------------------------------------
 create table if not exists public.saved_places (
-  id            uuid primary key default gen_random_uuid(),
+  id         uuid primary key default gen_random_uuid(),
   -- Filled in automatically from the signed-in user's session.
-  user_id       uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  restaurant_id uuid references public.restaurants (id) on delete set null,
-  name          text not null check (length(trim(name)) > 0),
-  source_url    text,
-  occasions     text[] not null default '{}'
-                  check (occasions <@ array['date', 'birthday', 'friends', 'solo']),
-  saved_at      timestamptz not null default now()
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  cafe_id    uuid references public.cafes (id) on delete set null,
+  name       text not null check (length(trim(name)) > 0),
+  source_url text,
+  purposes   text[] not null default '{}'
+               check (purposes <@ array['focus', 'calls', 'sprint', 'walk']),
+  saved_at   timestamptz not null default now()
 );
 
 create index if not exists saved_places_user_idx
   on public.saved_places (user_id, saved_at desc);
+create index if not exists saved_places_cafe_idx
+  on public.saved_places (cafe_id);
 
--- A user can save the same restaurant only once.
-create unique index if not exists saved_places_user_restaurant_uniq
-  on public.saved_places (user_id, restaurant_id)
-  where restaurant_id is not null;
+-- A user can save the same cafe only once.
+create unique index if not exists saved_places_user_cafe_uniq
+  on public.saved_places (user_id, cafe_id)
+  where cafe_id is not null;
 
 -- ---------------------------------------------------------------------------
 -- Row level security
 -- ---------------------------------------------------------------------------
-alter table public.restaurants  enable row level security;
+alter table public.cafes        enable row level security;
 alter table public.saved_places enable row level security;
 
--- Anyone (even signed out) can read restaurants. Nobody can write them from the app.
-drop policy if exists "restaurants are readable by everyone" on public.restaurants;
-create policy "restaurants are readable by everyone"
-  on public.restaurants for select
+-- Anyone (even signed out) can read cafes. Nobody can write them from the app.
+drop policy if exists "cafes are readable by everyone" on public.cafes;
+create policy "cafes are readable by everyone"
+  on public.cafes for select
   to anon, authenticated
   using (true);
 
@@ -86,7 +99,7 @@ create policy "users delete their own saved places"
 -- No update policy on purpose: saved places are created or removed, never edited.
 
 -- Table privileges for the API roles (RLS above does the row filtering).
-grant select on public.restaurants to anon, authenticated;
+grant select on public.cafes to anon, authenticated;
 revoke all on public.saved_places from anon;
 grant select, insert, delete on public.saved_places to authenticated;
 
@@ -187,17 +200,17 @@ create table if not exists public.collections (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.collection_restaurants (
+create table if not exists public.collection_cafes (
   collection_id uuid not null references public.collections (id) on delete cascade,
-  restaurant_id uuid not null references public.restaurants (id) on delete cascade,
+  cafe_id       uuid not null references public.cafes (id) on delete cascade,
   position      integer not null default 0,
-  primary key (collection_id, restaurant_id)
+  primary key (collection_id, cafe_id)
 );
 
-create index if not exists collection_restaurants_restaurant_idx on public.collection_restaurants (restaurant_id);
+create index if not exists collection_cafes_cafe_idx on public.collection_cafes (cafe_id);
 
 alter table public.collections enable row level security;
-alter table public.collection_restaurants enable row level security;
+alter table public.collection_cafes enable row level security;
 
 drop policy if exists "collections are readable by everyone" on public.collections;
 create policy "collections are readable by everyone"
@@ -205,11 +218,11 @@ create policy "collections are readable by everyone"
   to anon, authenticated
   using (true);
 
-drop policy if exists "collection items are readable by everyone" on public.collection_restaurants;
+drop policy if exists "collection items are readable by everyone" on public.collection_cafes;
 create policy "collection items are readable by everyone"
-  on public.collection_restaurants for select
+  on public.collection_cafes for select
   to anon, authenticated
   using (true);
 
 grant select on public.collections to anon, authenticated;
-grant select on public.collection_restaurants to anon, authenticated;
+grant select on public.collection_cafes to anon, authenticated;

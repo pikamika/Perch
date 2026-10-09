@@ -1,19 +1,21 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { BUDGET_MAX, BUDGET_MIN, BudgetSlider } from '../components/discover/BudgetSlider'
-import { OccasionPicker } from '../components/discover/OccasionPicker'
-import { RestaurantRow } from '../components/discover/RestaurantRow'
+import { CafeRow } from '../components/discover/CafeRow'
+import { NeedsFilter } from '../components/discover/NeedsFilter'
+import { PurposePicker } from '../components/discover/PurposePicker'
 import { RowSkeleton } from '../components/discover/RowSkeleton'
 import { Avatar } from '../components/profile/Avatar'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
+import { useCafes } from '../hooks/useCafes'
 import { useCollections } from '../hooks/useCollections'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useProfile } from '../hooks/useProfile'
-import { useRestaurants } from '../hooks/useRestaurants'
-import { filterRestaurants } from '../lib/filterRestaurants'
-import { OCCASION_META, parseOccasion } from '../lib/occasions'
-import type { Occasion } from '../types'
+import { filterCafes } from '../lib/filterCafes'
+import { PURPOSE_META, parsePurpose } from '../lib/purposes'
+import { parseNeeds } from '../lib/work'
+import type { Need, Purpose } from '../types'
 
 const PICK_COUNT = 3
 
@@ -23,26 +25,35 @@ function parseBudget(value: string | null): number | undefined {
   return Number.isFinite(n) && n >= BUDGET_MIN && n < BUDGET_MAX ? n : undefined
 }
 
+interface FilterState {
+  purpose?: Purpose
+  budget?: number
+  needs: Need[]
+}
+
 export function DiscoverPage() {
   useDocumentTitle('Discover')
   const { profile } = useProfile()
   const [params, setParams] = useSearchParams()
-  const occasion = parseOccasion(params.get('occasion'))
+  const purpose = parsePurpose(params.get('purpose'))
   const maxSpend = parseBudget(params.get('budget'))
+  const needs = parseNeeds(params.get('needs'))
 
-  const picks = useRestaurants({ occasion, maxSpend })
+  const picks = useCafes({ purpose, maxSpend, needs })
   const collections = useCollections()
 
-  function update(next: { occasion?: Occasion; budget?: number }) {
+  function update(next: FilterState) {
     const nextParams = new URLSearchParams()
-    if (next.occasion) nextParams.set('occasion', next.occasion)
+    if (next.purpose) nextParams.set('purpose', next.purpose)
     if (next.budget !== undefined) nextParams.set('budget', String(next.budget))
+    if (next.needs.length > 0) nextParams.set('needs', next.needs.join(','))
     setParams(nextParams, { replace: true })
   }
 
-  const picksTitle = occasion
-    ? `Top ${PICK_COUNT} for ${OCCASION_META[occasion].label.toLowerCase()}`
-    : `Your top ${PICK_COUNT} right now`
+  const current: FilterState = { purpose, budget: maxSpend, needs }
+  const picksTitle = purpose
+    ? `Top ${PICK_COUNT} for ${PURPOSE_META[purpose].label.toLowerCase()}`
+    : `Your top ${PICK_COUNT} to work from`
 
   return (
     <div className="space-y-8">
@@ -50,7 +61,7 @@ export function DiscoverPage() {
         <div className="min-w-0">
           {profile?.city ? <p className="truncate text-caption font-semibold text-ink-muted">📍 {profile.city}</p> : null}
           <h1 className="truncate font-display text-display">Hi {profile?.firstName ?? 'there'}</h1>
-          <p className="text-ink-muted">Where are we eating?</p>
+          <p className="text-ink-muted">Where are you working today?</p>
         </div>
         {profile ? (
           <Link
@@ -64,11 +75,12 @@ export function DiscoverPage() {
       </header>
 
       <div className="space-y-5">
-        <OccasionPicker selected={occasion} onChange={(o) => update({ occasion: o, budget: maxSpend })} />
-        <BudgetSlider value={maxSpend} onChange={(b) => update({ occasion, budget: b })} />
+        <PurposePicker selected={purpose} onChange={(p) => update({ ...current, purpose: p })} />
+        <NeedsFilter selected={needs} onChange={(n) => update({ ...current, needs: n })} />
+        <BudgetSlider value={maxSpend} onChange={(b) => update({ ...current, budget: b })} />
       </div>
 
-      <section aria-labelledby="picks-heading">
+      <div>
         {picks.state.status === 'loading' && <RowSkeleton label="Finding your picks" />}
 
         {picks.state.status === 'error' && (
@@ -77,48 +89,48 @@ export function DiscoverPage() {
 
         {picks.state.status === 'success' && picks.state.data.length === 0 && (
           <EmptyState
-            title="Nothing fits that budget"
-            description="No spots match this combination yet. Try a higher budget or a different occasion."
+            title="No cafe checks every box"
+            description="Nothing matches all of that yet. Loosen a must-have or raise your budget to see more."
             action={
-              <Button onClick={() => update({ occasion })} variant="secondary">
-                Show any budget
+              <Button onClick={() => update({ purpose, needs: [] })} variant="secondary">
+                Clear must-haves and budget
               </Button>
             }
           />
         )}
 
         {picks.state.status === 'success' && picks.state.data.length > 0 && (
-          <RestaurantRow
+          <CafeRow
             title={picksTitle}
-            subtitle="Matched to your occasion and budget"
-            restaurants={picks.state.data.slice(0, PICK_COUNT)}
-            occasion={occasion}
+            subtitle="The best match for what you picked"
+            cafes={picks.state.data.slice(0, PICK_COUNT)}
+            purpose={purpose}
           />
         )}
-      </section>
+      </div>
 
       {collections.state.status === 'loading' && (
         <>
-          <RowSkeleton label="Loading more places" />
-          <RowSkeleton label="Loading more places" />
+          <RowSkeleton label="Loading more cafes" />
+          <RowSkeleton label="Loading more cafes" />
         </>
       )}
 
       {collections.state.status === 'error' && (
-        <ErrorState message="We couldn't load more places to explore." onRetry={collections.reload} />
+        <ErrorState message="We couldn't load more cafes to explore." onRetry={collections.reload} />
       )}
 
       {collections.state.status === 'success' &&
         collections.state.data.map((collection) => {
-          const restaurants = filterRestaurants(collection.restaurants, { occasion, maxSpend })
-          if (restaurants.length === 0) return null
+          const cafes = filterCafes(collection.cafes, { purpose, maxSpend, needs })
+          if (cafes.length === 0) return null
           return (
-            <RestaurantRow
+            <CafeRow
               key={collection.id}
               title={collection.title}
               subtitle={collection.subtitle}
-              restaurants={restaurants}
-              occasion={occasion}
+              cafes={cafes}
+              purpose={purpose}
             />
           )
         })}

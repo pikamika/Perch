@@ -5,12 +5,12 @@ import { Button, ButtonLink } from '../components/ui/Button'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function AddPlacePage() {
-  useDocumentTitle('Add a place')
+  useDocumentTitle('Add a cafe')
   const [savedName, setSavedName] = useState<string | null>(null)
 
   return (
     <div className="md:mx-auto md:max-w-lg">
-      <PageHeader title="Add a place" subtitle="Found something on your feed? Save it before it disappears." />
+      <PageHeader title="Add a cafe" subtitle="Spotted a cafe on TikTok? Save it before the algorithm buries it." />
 
       {savedName ? (
         <div role="status" className="rounded-card bg-surface p-6 text-center shadow-card">

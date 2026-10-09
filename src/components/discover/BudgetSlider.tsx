@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
-export const BUDGET_MIN = 10
-export const BUDGET_MAX = 65 // the right-most stop means "any budget"
-const STEP = 5
+export const BUDGET_MIN = 5
+export const BUDGET_MAX = 25 // the right-most stop means "any budget"
+const STEP = 1
 
 interface Props {
-  /** Max spend per person in USD; undefined means any budget. */
+  /** Max spend for a drink plus a snack, in USD; undefined means any budget. */
   value?: number
   onChange: (maxSpend: number | undefined) => void
 }
@@ -19,7 +19,7 @@ export function BudgetSlider({ value, onChange }: Props) {
 
   const shown = draft ?? value ?? BUDGET_MAX
   const isAny = shown >= BUDGET_MAX
-  const text = isAny ? 'Any budget' : `Up to $${shown} per person`
+  const text = isAny ? 'Any budget' : `Up to $${shown} for a drink + snack`
 
   function handleChange(next: number) {
     setDraft(next)

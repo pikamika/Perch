@@ -126,7 +126,7 @@ export function AuthForm({ mode, next }: Props) {
           <TextField
             ref={cityRef}
             label="City you live in"
-            hint="So we can suggest places that make sense for you"
+            hint="So we can suggest cafes that make sense for you"
             autoComplete="address-level2"
             value={city}
             error={errors.city}

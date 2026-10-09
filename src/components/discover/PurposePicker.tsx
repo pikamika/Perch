@@ -1,27 +1,27 @@
-import { OCCASION_META } from '../../lib/occasions'
-import { OCCASIONS, type Occasion } from '../../types'
+import { PURPOSE_META } from '../../lib/purposes'
+import { PURPOSES, type Purpose } from '../../types'
 
 interface Props {
-  selected?: Occasion
-  /** Called with undefined when the selected occasion is tapped again. */
-  onChange: (occasion: Occasion | undefined) => void
+  selected?: Purpose
+  /** Called with undefined when the selected purpose is tapped again. */
+  onChange: (purpose: Purpose | undefined) => void
 }
 
-/** Round emoji tiles in a row, like the cuisine shortcuts on a food-delivery app. */
-export function OccasionPicker({ selected, onChange }: Props) {
+/** Round emoji tiles in a row, like the specialty shortcuts on a food-delivery app. */
+export function PurposePicker({ selected, onChange }: Props) {
   return (
     <fieldset>
-      <legend className="sr-only">What&rsquo;s the occasion?</legend>
+      <legend className="sr-only">What are you here to do?</legend>
       <div className="flex justify-between gap-2 md:justify-start md:gap-6">
-        {OCCASIONS.map((occasion) => {
-          const isSelected = occasion === selected
-          const { label, emoji } = OCCASION_META[occasion]
+        {PURPOSES.map((purpose) => {
+          const isSelected = purpose === selected
+          const { label, emoji } = PURPOSE_META[purpose]
           return (
             <button
-              key={occasion}
+              key={purpose}
               type="button"
               aria-pressed={isSelected}
-              onClick={() => onChange(isSelected ? undefined : occasion)}
+              onClick={() => onChange(isSelected ? undefined : purpose)}
               className="flex min-h-touch w-[4.75rem] flex-col items-center gap-1.5 rounded-card py-1"
             >
               <span

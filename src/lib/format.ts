@@ -2,6 +2,7 @@ export function formatSpend(amount: number): string {
   return `$${amount}`
 }
 
-export function formatPerPerson(amount: number): string {
-  return `~${formatSpend(amount)} / person`
+/** What a typical drink plus a snack costs. */
+export function formatTypicalSpend(amount: number): string {
+  return `~${formatSpend(amount)} drink + snack`
 }

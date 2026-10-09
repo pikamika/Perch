@@ -1,4 +1,4 @@
-export * from './restaurant'
+export * from './cafe'
 export * from './saved'
 export * from './filters'
 export * from './profile'

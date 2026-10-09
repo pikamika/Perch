@@ -6,7 +6,7 @@ import { AddPlacePage } from './pages/AddPlacePage'
 import { DiscoverPage } from './pages/DiscoverPage'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { RestaurantPage } from './pages/RestaurantPage'
+import { CafePage } from './pages/CafePage'
 import { SavedPage } from './pages/SavedPage'
 import { SignupPage } from './pages/SignupPage'
 
@@ -21,7 +21,7 @@ export const router = createBrowserRouter([
         element: <RequireAuth />,
         children: [
           { path: '/', element: <DiscoverPage /> },
-          { path: '/place/:id', element: <RestaurantPage /> },
+          { path: '/place/:id', element: <CafePage /> },
           { path: '/saved', element: <SavedPage /> },
           { path: '/add', element: <AddPlacePage /> },
           { path: '/account', element: <AccountPage /> },

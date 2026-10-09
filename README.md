@@ -1,8 +1,14 @@
-# Confidence Card
+# Perch
 
-A mobile-first prototype that helps NYC food lovers gain confidence in a restaurant in seconds: is the vibe right for my occasion, what does it cost, and what should I order?
+Find a cafe you can actually work from.
 
-This is a class prototype. The front end reads and writes data through a service layer that can run on local mock data or on Supabase; see [Supabase back end](#supabase-back-end).
+Remote workers want to work from cafes, but Google Maps does not say whether a cafe has Wi-Fi, outlets or open seats. Finding out means digging through reviews and betting it is not packed. Too often they walk in, find no seat, and give up and go home.
+
+Perch answers that before you leave home: how good the Wi-Fi is (and whether you must buy something for the password), how many outlets there are, whether there are seats, how loud it is, and when it is busiest, all on one glanceable page.
+
+**Persona: Miyuki**, mid to late 20s, a remote product designer in New York. She loves TikTok-trendy cafes and walks with a coffee or matcha in hand, and wants to use her remote-work flexibility to work from cafes. Her pain points: no seats, no Wi-Fi, no outlets, too expensive, Wi-Fi that needs a purchase, slow or insecure Wi-Fi. She has a phone hotspot, but free Wi-Fi is still preferable.
+
+This is a class prototype. The front end reads and writes data through a service layer that can run on local mock data or on Supabase; see [Supabase back end](#supabase-back-end). The product name lives in one place: `src/lib/brand.ts`.
 
 ## Run it
 
@@ -27,13 +33,15 @@ Other scripts:
 Everything except Log in and Create account needs an account; the navigation bar only appears once you are logged in.
 
 - **Log in / Create account (`/login`, `/signup`)**: email and password. Sign-up also asks for first name and city. The button stays disabled until every field is filled; the eye icon inside the password field shows or hides it.
-- **Discover (`/`)**: "Hi {first name}", your city, round occasion shortcuts, an optional budget, your top 3 picks, then swipeable sections like "Trending on TikTok" and "Flushing food crawl eats". The occasion and budget filter every section. Choices live in the URL (`/?occasion=date&budget=30`).
-- **Confidence card (`/place/:id`)**: swipeable photos, best-for chips (your occasion is highlighted), price, what to order, photo freshness, save button.
-- **Saved (`/saved`)**: your saved places, filterable by occasion, with an empty state.
-- **Add a place (`/add`)**: paste a link and a name; saves it to your list (no link parsing).
+- **Discover (`/`)**: "Hi {first name}", your city, four purpose shortcuts (Focus time, Calls, Quick sprint, Coffee walk), must-have toggles (Free Wi-Fi, Outlets, Easy seating, Quiet) and a budget for a drink plus a snack. Below are your top 3 and swipeable sections: "Solid backups" (chains that almost always have Wi-Fi), "TikTok found it first", "Outlets everywhere", "Quiet enough for calls", "Always a seat" and "Matcha and a walk". Every filter applies to every section. Choices live in the URL (`/?purpose=focus&needs=wifi,outlets&budget=10`).
+- **Cafe page (`/place/:id`)**: swipeable photos, a one-glance verdict ("Great for working", "Works in a pinch", "Better for a quick stop"), and a **Work check** with Wi-Fi (free, with purchase or none, plus speed and whether the network is password-protected), outlets, seating, noise, laptop policy, best time to work, busiest times, and how recently those details were checked. Then what to order, what it costs, vibe, and a save button.
+- **Saved (`/saved`)**: your saved cafes, filterable by purpose, with an empty state.
+- **Add a cafe (`/add`)**: paste a TikTok, Instagram or Google Maps link and a name; saves it to your list (no link parsing).
 - **Account (`/account`)**: edit your first name (cannot be empty), location and profile picture (any emoji on one of 7 background colors; new accounts start with a random food emoji on a background that contrasts with it). Email is shown but cannot be changed. Log out lives here.
 
-Your city is saved and shown, but it does not filter results yet: restaurants only have a neighborhood, so there is nothing to match it against.
+Your city is saved and shown, but it does not filter results yet: cafes only have a neighborhood, so there is nothing to match it against.
+
+The ranking of "top 3" is a simple work score (Wi-Fi, outlets, seating, quiet, laptop-friendly) in `src/lib/work.ts`; Coffee walk skips the work details and favors grab-and-go places.
 
 Every screen has loading, empty and error states. The mock service waits 200 to 600 ms so you can see them.
 
@@ -52,24 +60,24 @@ In mock mode, saved places are stored in `localStorage` (key `cc.savedPlaces.v1`
 
 ```
 src/
-  types/        Domain types: Restaurant, Dish, Occasion, PriceBand, SavedPlace, filters
-  data/         mockRestaurants.ts, 10 FICTIONAL placeholder restaurants (mock fallback + seed source)
+  types/        Domain types: Cafe, Dish, Purpose, Need, PriceBand, SavedPlace, Profile, Collection, filters
+  data/         mockCafes.ts and mockCollections.ts: 15 FICTIONAL placeholder cafes (mock fallback + seed source)
   services/     The data access layer
-    restaurantService.ts      interface: listRestaurants, getRestaurant
+    cafeService.ts            interface: listCafes, getCafe
     savedPlaceService.ts      interface: listSavedPlaces, savePlace, removeSavedPlace
     mock/                     in-memory + localStorage implementations, fake latency
     supabase/                 Supabase implementations + row mappers
     index.ts                  picks Supabase (if configured) or mock
-  hooks/        useAsync, useRestaurants, useRestaurant, useSavedPlaces, useDocumentTitle
+  hooks/        useAsync, useCafes, useCafe, useCollections, useSavedPlaces, useProfile, useAuth
   components/
     layout/     AppShell, BottomNav (mobile), TopNav (tablet/desktop), PageHeader, BackButton
     ui/         Button, Chip, TextField, Skeleton, EmptyState, ErrorState, icons...
-    discover/   OccasionPicker, BudgetSlider, RestaurantRow, RowSkeleton
-    restaurant/ RestaurantCardCompact, PhotoStrip, OccasionChips, WhatToOrder, ...
-    saved/      SavedItem, OccasionFilter, SavedSkeleton
+    discover/   PurposePicker, NeedsFilter, BudgetSlider, CafeRow, RowSkeleton
+    cafe/       CafeTile, WorkCheck, WorkChips, WorkVerdictBadge, PhotoStrip, PurposeChips, WhatToOrder, ...
+    saved/      SavedItem, PurposeFilter, SavedSkeleton
     add/        AddPlaceForm
-  pages/        DiscoverPage, RestaurantPage, SavedPage, AddPlacePage, LoginPage, SignupPage, AccountPage, NotFoundPage
-  lib/          format, freshness, occasions, placeholderPhoto
+  pages/        DiscoverPage, CafePage, SavedPage, AddPlacePage, LoginPage, SignupPage, AccountPage, NotFoundPage
+  lib/          brand, work (ranking + labels), filterCafes, freshness, purposes, avatar, placeholderPhoto
   router.tsx    routes
 supabase/            schema.sql (tables + security) and seed.sql (placeholder data)
 tailwind.config.ts   design tokens (colors, radii, spacing, type scale, shadows)
@@ -83,8 +91,8 @@ All design tokens live in `tailwind.config.ts`: the color palette (`cream`, `bra
 
 ## Changing the data
 
-- Edit `src/data/mockRestaurants.ts` (it is marked as placeholder data).
-- Photos come from `src/lib/placeholderPhoto.ts` (seeded picsum.photos images, so they are random and not food photos; they need an internet connection). Replace the `photos` arrays with real image URLs whenever you like.
+- Edit `src/data/mockCafes.ts` and `src/data/mockCollections.ts` (both are marked as placeholder data). Every cafe is fictional, including the chains.
+- Photos come from `src/lib/placeholderPhoto.ts` (seeded picsum.photos images, so they are random landscapes rather than cafe photos; they need an internet connection). Replace the `photos` arrays with real image URLs whenever you like.
 
 ## Supabase back end
 
@@ -94,7 +102,7 @@ The app talks to Supabase when it has a URL and an anon key; without them it sil
 
 1. In the Supabase dashboard open **SQL Editor** and run, in this order:
    1. `supabase/schema.sql`: tables, row level security, policies.
-   2. `supabase/seed.sql`: the 14 placeholder restaurants and the 5 Discover collections. (Re-running it replaces them.)
+   2. `supabase/seed.sql`: the 15 placeholder cafes and the 6 Discover collections. (Re-running it replaces them.)
    (Project created with the older device-id version? See `supabase/migrations/README.md`.)
 2. Copy `.env.example` to `.env.local` and paste your **anon (public) key** from *Project Settings > API Keys*:
    ```bash
@@ -121,18 +129,28 @@ With no Supabase variables set (mock mode), login accepts any email and password
 
 - `src/lib/supabaseClient.ts`: creates the client from the env vars (anon key only). The session is kept in localStorage and refreshed automatically.
 - `src/services/authService.ts` plus `supabase/supabaseAuthService.ts` and `mock/mockAuthService.ts`: sign up, log in, log out, current user. `src/components/auth/AuthProvider.tsx` and `src/hooks/useAuth.ts` expose it to the UI; `RequireAuth.tsx` guards the account-only routes.
-- `src/services/supabase/`: restaurant, saved place, profile, collection and auth services plus `mappers.ts` (snake_case database rows to the app's types).
+- `src/services/supabase/`: cafe, saved place, profile, collection and auth services plus `mappers.ts` (snake_case database rows to the app's types).
 - `profiles` table: first name, city, avatar emoji and color. A database trigger creates the row at sign-up from the details the sign-up form sends, so it works whether or not email confirmation is on. The Account page edits it (row level security: users only touch their own row).
-- `collections` and `collection_restaurants` tables: the editorial sections on Discover. Edit them in the Supabase Table Editor to change what shows up and in what order (`sort_order`, `position`).
-- `saved_places` rows belong to a user (`user_id` fills itself from the session). Row level security lets a signed-in user read, add and delete only their own rows; signed-out visitors have no access. Restaurants are readable by everyone and read-only to the app.
-- `src/data/mockRestaurants.ts` is still the source for `seed.sql`. To change the live data, edit the rows in Supabase (Table Editor) or update `seed.sql`.
+- `collections` and `collection_cafes` tables: the editorial sections on Discover. Edit them in the Supabase Table Editor to change what shows up and in what order (`sort_order`, `position`).
+- `saved_places` rows belong to a user (`user_id` fills itself from the session). Row level security lets a signed-in user read, add and delete only their own rows; signed-out visitors have no access. `cafes` are readable by everyone and read-only to the app.
+- `src/data/mockCafes.ts` and `mockCollections.ts` are still the source for `seed.sql`. To change the live data, edit the rows in Supabase (Table Editor) or update `seed.sql`.
 
 ### Security notes
 
 - Never put the `service_role` key in this app or in git. Only the anon key belongs in `.env.local`.
 - Passwords are handled entirely by Supabase Auth; the app never stores them.
+- Work details (Wi-Fi, outlets, seats, noise) are hand-entered placeholder data. Real cafes will need a source for them: see the notes below.
 - Not built yet: password reset ("forgot password"), changing email or password, deleting an account, social login.
-- Photos still use placeholder URLs. When you have real photos, upload them to Supabase Storage and update `restaurants.photos`.
+- Photos still use placeholder URLs. When you have real photos, upload them to Supabase Storage and update `cafes.photos`.
+
+## Where real cafe data could come from
+
+Nothing here is connected yet; these are notes for when the placeholder cafes get replaced.
+
+- **Google Places API (New)** is the usual source for real cafes (names, addresses, photos, hours, ratings). It is not free-unlimited: Google gives a monthly free allowance per billing SKU (roughly 10,000 calls for the basic "Essentials" SKUs, 5,000 for "Pro" and 1,000 for "Enterprise" fields at the time of writing; check Google's pricing page), and billing must be enabled. As far as we know it has no Wi-Fi or outlet field, so it cannot answer the main question by itself.
+- **OpenStreetMap** is free and has `internet_access=wlan` and `internet_access:fee` tags for Wi-Fi, but coverage is patchy and outlets are rarely tagged. The public Overpass server expects light, polite use.
+- **Foursquare Places** has a free developer tier; whether its Wi-Fi attribute is included in the free fields should be checked in their docs.
+- **Crowdsourcing** is the realistic answer for outlets, seats and "do I need to buy something for the password": let people report and confirm those details, and show how recently they were checked (the "Work details checked" line is already there for that).
 
 ## Accessibility notes
 

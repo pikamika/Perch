@@ -24,3 +24,14 @@ export function formatPhotoDate(photosUpdatedAt: string): string {
     timeZone: 'UTC',
   })
 }
+
+/** How trustworthy the Wi-Fi / seating details are: these change more often than photos do. */
+export function getWorkInfoFreshness(workInfoUpdatedAt: string, now: Date = new Date()): Freshness {
+  const months = Math.floor((now.getTime() - new Date(workInfoUpdatedAt).getTime()) / MS_PER_MONTH)
+  if (months < 1) return { label: 'Work details checked this month', isFresh: true }
+  if (months <= 3) return { label: `Work details checked ${months} month${months === 1 ? '' : 's'} ago`, isFresh: true }
+  return {
+    label: `Work details checked ${months} months ago. Wi-Fi and seating may have changed.`,
+    isFresh: false,
+  }
+}

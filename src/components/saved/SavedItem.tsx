@@ -1,20 +1,20 @@
 import { Link } from 'react-router-dom'
-import { OCCASION_META } from '../../lib/occasions'
-import type { Restaurant, SavedPlace } from '../../types'
+import { PURPOSE_META } from '../../lib/purposes'
+import type { Cafe, SavedPlace } from '../../types'
 import { Chip } from '../ui/Chip'
 import { ExternalIcon, TrashIcon } from '../ui/icons'
 
 interface Props {
   place: SavedPlace
-  /** Matching restaurant, when the place was saved from a confidence card. */
-  restaurant?: Restaurant
+  /** Matching cafe, when the place was saved from a cafe page. */
+  cafe?: Cafe
   removing?: boolean
   onRemove: (place: SavedPlace) => void
 }
 
-export function SavedItem({ place, restaurant, removing = false, onRemove }: Props) {
-  const cover = restaurant?.photos[0]
-  const meta = restaurant ? `${restaurant.neighborhood} · ${restaurant.cuisine}` : 'Added from a link'
+export function SavedItem({ place, cafe, removing = false, onRemove }: Props) {
+  const cover = cafe?.photos[0]
+  const meta = cafe ? `${cafe.neighborhood} · ${cafe.specialty}` : 'Added from a link'
 
   const content = (
     <>
@@ -31,18 +31,18 @@ export function SavedItem({ place, restaurant, removing = false, onRemove }: Pro
         <h2 className="line-clamp-2 font-display text-lead font-bold leading-tight">{place.name}</h2>
         <p className="flex items-center gap-1 truncate text-caption text-ink-muted">
           {meta}
-          {!restaurant && place.sourceUrl ? (
+          {!cafe && place.sourceUrl ? (
             <>
               <ExternalIcon width={14} height={14} />
               <span className="sr-only">(opens the original link in a new tab)</span>
             </>
           ) : null}
         </p>
-        {place.occasions.length > 0 ? (
+        {place.purposes.length > 0 ? (
           <ul className="mt-1.5 flex flex-wrap gap-1" aria-label="Best for">
-            {place.occasions.map((o) => (
+            {place.purposes.map((o) => (
               <li key={o}>
-                <Chip>{OCCASION_META[o].label}</Chip>
+                <Chip>{PURPOSE_META[o].label}</Chip>
               </li>
             ))}
           </ul>
@@ -55,8 +55,8 @@ export function SavedItem({ place, restaurant, removing = false, onRemove }: Pro
 
   return (
     <li className="flex items-center rounded-card bg-surface shadow-card">
-      {restaurant ? (
-        <Link to={`/place/${restaurant.id}`} className={linkClasses}>
+      {cafe ? (
+        <Link to={`/place/${cafe.id}`} className={linkClasses}>
           {content}
         </Link>
       ) : place.sourceUrl ? (

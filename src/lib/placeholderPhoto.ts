@@ -1,5 +1,5 @@
 /**
- * Single place that decides where restaurant photos come from.
+ * Single place that decides where cafe photos come from.
  * Swap this for real image URLs (or Supabase Storage) later.
  * Uses picsum.photos: seeded, so the same seed always gives the same image.
  */

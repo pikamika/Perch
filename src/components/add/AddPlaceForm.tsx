@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react'
-import { OCCASION_META } from '../../lib/occasions'
+import { PURPOSE_META } from '../../lib/purposes'
 import { savedPlaceService } from '../../services'
-import { OCCASIONS, type Occasion } from '../../types'
+import { PURPOSES, type Purpose } from '../../types'
 import { Button } from '../ui/Button'
 import { Chip } from '../ui/Chip'
 import { TextField } from '../ui/TextField'
@@ -27,16 +27,16 @@ function isHttpUrl(value: string): boolean {
 export function AddPlaceForm({ onSaved }: Props) {
   const [link, setLink] = useState('')
   const [name, setName] = useState('')
-  const [occasions, setOccasions] = useState<Occasion[]>([])
+  const [purposes, setPurposes] = useState<Purpose[]>([])
   const [errors, setErrors] = useState<Errors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const linkRef = useRef<HTMLInputElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
 
-  function toggleOccasion(occasion: Occasion) {
-    setOccasions((current) =>
-      current.includes(occasion) ? current.filter((o) => o !== occasion) : [...current, occasion],
+  function togglePurpose(purpose: Purpose) {
+    setPurposes((current) =>
+      current.includes(purpose) ? current.filter((o) => o !== purpose) : [...current, purpose],
     )
   }
 
@@ -48,7 +48,7 @@ export function AddPlaceForm({ onSaved }: Props) {
     const nextErrors: Errors = {}
     if (!trimmedLink) nextErrors.link = 'Paste a link to the post or map listing.'
     else if (!isHttpUrl(trimmedLink)) nextErrors.link = 'That doesn’t look like a link. It should start with https://'
-    if (!trimmedName) nextErrors.name = 'Add the restaurant’s name.'
+    if (!trimmedName) nextErrors.name = 'Add the cafe’s name.'
 
     setErrors(nextErrors)
     setSubmitError(null)
@@ -57,7 +57,7 @@ export function AddPlaceForm({ onSaved }: Props) {
 
     setPending(true)
     try {
-      await savedPlaceService.savePlace({ name: trimmedName, sourceUrl: trimmedLink, occasions })
+      await savedPlaceService.savePlace({ name: trimmedName, sourceUrl: trimmedLink, purposes })
       onSaved(trimmedName)
     } catch {
       setSubmitError('We couldn’t save this place. Please try again.')
@@ -82,7 +82,7 @@ export function AddPlaceForm({ onSaved }: Props) {
       />
       <TextField
         ref={nameRef}
-        label="Restaurant name"
+        label="Cafe name"
         autoComplete="off"
         value={name}
         error={errors.name}
@@ -94,9 +94,9 @@ export function AddPlaceForm({ onSaved }: Props) {
           Good for <span className="font-normal text-ink-muted">(optional)</span>
         </legend>
         <div className="flex flex-wrap gap-2">
-          {OCCASIONS.map((occasion) => (
-            <Chip key={occasion} selected={occasions.includes(occasion)} onClick={() => toggleOccasion(occasion)}>
-              {OCCASION_META[occasion].label}
+          {PURPOSES.map((purpose) => (
+            <Chip key={purpose} selected={purposes.includes(purpose)} onClick={() => togglePurpose(purpose)}>
+              {PURPOSE_META[purpose].label}
             </Chip>
           ))}
         </div>

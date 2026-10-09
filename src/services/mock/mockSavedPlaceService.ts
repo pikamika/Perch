@@ -1,11 +1,11 @@
-import { OCCASIONS, type Occasion, type SavedPlace } from '../../types'
+import { PURPOSES, type Purpose, type SavedPlace } from '../../types'
 import type { SavedPlaceService } from '../savedPlaceService'
 import { simulateNetwork } from './delay'
 
 const STORAGE_KEY = 'cc.savedPlaces.v1'
 
-function isOccasion(value: unknown): value is Occasion {
-  return typeof value === 'string' && (OCCASIONS as readonly string[]).includes(value)
+function isPurpose(value: unknown): value is Purpose {
+  return typeof value === 'string' && (PURPOSES as readonly string[]).includes(value)
 }
 
 function isSavedPlace(value: unknown): value is SavedPlace {
@@ -15,8 +15,8 @@ function isSavedPlace(value: unknown): value is SavedPlace {
     typeof v.id === 'string' &&
     typeof v.name === 'string' &&
     typeof v.savedAt === 'string' &&
-    Array.isArray(v.occasions) &&
-    v.occasions.every(isOccasion)
+    Array.isArray(v.purposes) &&
+    v.purposes.every(isPurpose)
   )
 }
 
@@ -48,16 +48,16 @@ export const mockSavedPlaceService: SavedPlaceService = {
   async savePlace(input) {
     await simulateNetwork(200, 400)
     const all = readAll()
-    if (input.restaurantId) {
-      const existing = all.find((p) => p.restaurantId === input.restaurantId)
+    if (input.cafeId) {
+      const existing = all.find((p) => p.cafeId === input.cafeId)
       if (existing) return existing
     }
     const place: SavedPlace = {
       id: crypto.randomUUID(),
-      restaurantId: input.restaurantId,
+      cafeId: input.cafeId,
       name: input.name,
       sourceUrl: input.sourceUrl,
-      occasions: input.occasions ?? [],
+      purposes: input.purposes ?? [],
       savedAt: new Date().toISOString(),
     }
     writeAll([place, ...all])

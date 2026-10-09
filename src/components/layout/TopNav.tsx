@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
+import { APP_NAME } from '../../lib/brand'
 import { NAV_ITEMS } from './navItems'
 
 /** Tablet / desktop header with the same three destinations. */
@@ -7,7 +8,7 @@ export function TopNav() {
     <header className="hidden border-b border-line bg-surface md:block">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-gutter py-2">
         <Link to="/" className="inline-flex min-h-touch items-center font-display text-lead font-bold text-brand-dark">
-          Confidence Card
+          {APP_NAME}
         </Link>
         <nav aria-label="Main">
           <ul className="flex gap-1">

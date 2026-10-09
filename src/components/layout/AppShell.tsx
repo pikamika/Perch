@@ -1,5 +1,6 @@
 import { Outlet, ScrollRestoration } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { APP_NAME } from '../../lib/brand'
 import { BottomNav } from './BottomNav'
 import { TopNav } from './TopNav'
 
@@ -19,7 +20,7 @@ export function AppShell() {
       {showNav ? (
         <TopNav />
       ) : (
-        <p className="px-gutter pt-8 text-center font-display text-lead font-bold text-brand-dark">Confidence Card</p>
+        <p className="px-gutter pt-8 text-center font-display text-lead font-bold text-brand-dark">{APP_NAME}</p>
       )}
       <main
         id="main"

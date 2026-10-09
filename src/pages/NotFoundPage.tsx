@@ -7,7 +7,7 @@ export function NotFoundPage() {
   return (
     <EmptyState
       title="Page not found"
-      description="That page does not exist. Head back and pick a spot."
+      description="That page does not exist. Head back and find a cafe."
       action={<ButtonLink to="/">Back to Discover</ButtonLink>}
     />
   )

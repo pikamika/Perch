@@ -1,17 +1,17 @@
 import { useId } from 'react'
-import type { Occasion, Restaurant } from '../../types'
-import { RestaurantTile } from '../restaurant/RestaurantTile'
+import type { Purpose, Cafe } from '../../types'
+import { CafeTile } from '../cafe/CafeTile'
 import { HorizontalScroller } from '../ui/HorizontalScroller'
 
 interface Props {
   title: string
   subtitle?: string
-  restaurants: Restaurant[]
-  occasion?: Occasion
+  cafes: Cafe[]
+  purpose?: Purpose
 }
 
 /** One DoorDash-style section: a heading and a swipeable row of tiles. */
-export function RestaurantRow({ title, subtitle, restaurants, occasion }: Props) {
+export function CafeRow({ title, subtitle, cafes, purpose }: Props) {
   const headingId = useId()
   return (
     <section aria-labelledby={headingId}>
@@ -22,9 +22,9 @@ export function RestaurantRow({ title, subtitle, restaurants, occasion }: Props)
         {subtitle ? <p className="text-ink-muted">{subtitle}</p> : null}
       </div>
       <HorizontalScroller label={title}>
-        {restaurants.map((restaurant) => (
-          <li key={restaurant.id} className="w-[15rem] shrink-0 snap-start md:w-[17rem]">
-            <RestaurantTile restaurant={restaurant} occasion={occasion} />
+        {cafes.map((cafe) => (
+          <li key={cafe.id} className="w-[15rem] shrink-0 snap-start md:w-[17rem]">
+            <CafeTile cafe={cafe} purpose={purpose} />
           </li>
         ))}
       </HorizontalScroller>

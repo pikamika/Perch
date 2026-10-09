@@ -1,9 +1,9 @@
 import { LoadingStatus } from '../ui/LoadingStatus'
 import { Skeleton } from '../ui/Skeleton'
 
-export function RestaurantSkeleton() {
+export function CafeSkeleton() {
   return (
-    <LoadingStatus label="Loading restaurant">
+    <LoadingStatus label="Loading cafe">
       <div className="lg:grid lg:grid-cols-[1.2fr_1fr] lg:gap-8">
         <Skeleton className="aspect-[4/3] w-full rounded-card" />
         <div className="mt-5 space-y-4 lg:mt-0">

@@ -9,20 +9,20 @@ import type { CollectionService } from './collectionService'
 import { mockAuthService } from './mock/mockAuthService'
 import { mockCollectionService } from './mock/mockCollectionService'
 import { mockProfileService } from './mock/mockProfileService'
-import { mockRestaurantService } from './mock/mockRestaurantService'
+import { mockCafeService } from './mock/mockCafeService'
 import { mockSavedPlaceService } from './mock/mockSavedPlaceService'
 import type { ProfileService } from './profileService'
-import type { RestaurantService } from './restaurantService'
+import type { CafeService } from './cafeService'
 import type { SavedPlaceService } from './savedPlaceService'
 import { supabaseAuthService } from './supabase/supabaseAuthService'
 import { supabaseCollectionService } from './supabase/supabaseCollectionService'
 import { supabaseProfileService } from './supabase/supabaseProfileService'
-import { supabaseRestaurantService } from './supabase/supabaseRestaurantService'
+import { supabaseCafeService } from './supabase/supabaseCafeService'
 import { supabaseSavedPlaceService } from './supabase/supabaseSavedPlaceService'
 
-export const restaurantService: RestaurantService = isSupabaseConfigured
-  ? supabaseRestaurantService
-  : mockRestaurantService
+export const cafeService: CafeService = isSupabaseConfigured
+  ? supabaseCafeService
+  : mockCafeService
 export const savedPlaceService: SavedPlaceService = isSupabaseConfigured
   ? supabaseSavedPlaceService
   : mockSavedPlaceService
@@ -36,6 +36,6 @@ export { AuthError } from './authService'
 export type { CollectionService } from './collectionService'
 export type { ProfileService } from './profileService'
 export type { AuthService, AuthUser, SignUpResult } from './authService'
-export { NotFoundError } from './restaurantService'
-export type { RestaurantService } from './restaurantService'
+export { NotFoundError } from './cafeService'
+export type { CafeService } from './cafeService'
 export type { SavedPlaceService } from './savedPlaceService'

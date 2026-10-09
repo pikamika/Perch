@@ -21,11 +21,11 @@ export const supabaseSavedPlaceService: SavedPlaceService = {
     const supabase = getSupabase()
 
     async function findExisting() {
-      if (!input.restaurantId) return undefined
+      if (!input.cafeId) return undefined
       const { data, error } = await supabase
         .from('saved_places')
         .select('*')
-        .eq('restaurant_id', input.restaurantId)
+        .eq('cafe_id', input.cafeId)
         .maybeSingle()
       if (error) throw new Error(error.message)
       return data ? toSavedPlace(data) : undefined
@@ -37,10 +37,10 @@ export const supabaseSavedPlaceService: SavedPlaceService = {
     const { data, error } = await supabase
       .from('saved_places')
       .insert({
-        restaurant_id: input.restaurantId ?? null,
+        cafe_id: input.cafeId ?? null,
         name: input.name,
         source_url: input.sourceUrl ?? null,
-        occasions: input.occasions ?? [],
+        purposes: input.purposes ?? [],
       })
       .select('*')
       .single()
