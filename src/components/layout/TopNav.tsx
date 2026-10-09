@@ -1,8 +1,9 @@
 import { Link, NavLink } from 'react-router-dom'
-import { NAV_ITEMS } from './navItems'
+import { useNavItems } from './navItems'
 
 /** Tablet / desktop header with the same three destinations. */
 export function TopNav() {
+  const navItems = useNavItems()
   return (
     <header className="hidden border-b border-line bg-surface md:block">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-gutter py-2">
@@ -11,7 +12,7 @@ export function TopNav() {
         </Link>
         <nav aria-label="Main">
           <ul className="flex gap-1">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}

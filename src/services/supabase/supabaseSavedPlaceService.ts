@@ -1,4 +1,3 @@
-import { getDeviceId } from '../../lib/deviceId'
 import { getSupabase } from '../../lib/supabaseClient'
 import type { SavedPlaceService } from '../savedPlaceService'
 import { toSavedPlace } from './mappers'
@@ -6,12 +5,13 @@ import { toSavedPlace } from './mappers'
 // Postgres error code for a unique constraint violation.
 const UNIQUE_VIOLATION = '23505'
 
+// Row level security limits every query to the signed-in user's own rows, and the
+// user_id column fills itself from the session, so no user id is passed from here.
 export const supabaseSavedPlaceService: SavedPlaceService = {
   async listSavedPlaces() {
     const { data, error } = await getSupabase()
       .from('saved_places')
       .select('*')
-      .eq('device_id', getDeviceId())
       .order('saved_at', { ascending: false })
     if (error) throw new Error(error.message)
     return data.map(toSavedPlace)
@@ -19,14 +19,12 @@ export const supabaseSavedPlaceService: SavedPlaceService = {
 
   async savePlace(input) {
     const supabase = getSupabase()
-    const deviceId = getDeviceId()
 
     async function findExisting() {
       if (!input.restaurantId) return undefined
       const { data, error } = await supabase
         .from('saved_places')
         .select('*')
-        .eq('device_id', deviceId)
         .eq('restaurant_id', input.restaurantId)
         .maybeSingle()
       if (error) throw new Error(error.message)
@@ -39,7 +37,6 @@ export const supabaseSavedPlaceService: SavedPlaceService = {
     const { data, error } = await supabase
       .from('saved_places')
       .insert({
-        device_id: deviceId,
         restaurant_id: input.restaurantId ?? null,
         name: input.name,
         source_url: input.sourceUrl ?? null,
@@ -60,7 +57,7 @@ export const supabaseSavedPlaceService: SavedPlaceService = {
   },
 
   async removeSavedPlace(id) {
-    const { error } = await getSupabase().from('saved_places').delete().eq('id', id).eq('device_id', getDeviceId())
+    const { error } = await getSupabase().from('saved_places').delete().eq('id', id)
     if (error) throw new Error(error.message)
   },
 }

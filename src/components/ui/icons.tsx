@@ -58,3 +58,10 @@ export const ExternalIcon = (props: IconProps) => (
     <path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6" />
   </Icon>
 )
+
+export const UserIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+  </Icon>
+)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { BackButton } from '../components/layout/BackButton'
 import { FreshnessBadge } from '../components/restaurant/FreshnessBadge'
 import { OccasionChips } from '../components/restaurant/OccasionChips'
@@ -13,6 +13,7 @@ import { Chip } from '../components/ui/Chip'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { ExternalIcon } from '../components/ui/icons'
+import { useAuth } from '../hooks/useAuth'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useRestaurant } from '../hooks/useRestaurant'
 import { useSavedPlaces } from '../hooks/useSavedPlaces'
@@ -51,34 +52,6 @@ export function RestaurantPage() {
 }
 
 function ConfidenceCard({ restaurant, occasion }: { restaurant: Restaurant; occasion?: Occasion }) {
-  const { state: savedState, reload: reloadSaved, save, remove } = useSavedPlaces()
-  const [pending, setPending] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
-
-  const savedEntry =
-    savedState.status === 'success' ? savedState.data.find((p) => p.restaurantId === restaurant.id) : undefined
-
-  async function toggleSaved() {
-    setPending(true)
-    setSaveError(null)
-    try {
-      if (savedEntry) {
-        await remove(savedEntry.id)
-      } else {
-        await save({
-          restaurantId: restaurant.id,
-          name: restaurant.name,
-          sourceUrl: restaurant.sourceUrl,
-          occasions: restaurant.bestFor,
-        })
-      }
-    } catch {
-      setSaveError('We couldn’t update your saved places. Please try again.')
-    } finally {
-      setPending(false)
-    }
-  }
-
   return (
     <article className="lg:grid lg:grid-cols-[1.2fr_1fr] lg:items-start lg:gap-8">
       <div className="lg:sticky lg:top-6">
@@ -129,25 +102,7 @@ function ConfidenceCard({ restaurant, occasion }: { restaurant: Restaurant; occa
         </section>
 
         <div className="space-y-3">
-          <SaveButton
-            saved={savedEntry !== undefined}
-            pending={pending}
-            disabled={savedState.status !== 'success'}
-            onToggle={toggleSaved}
-          />
-          {saveError ? (
-            <p role="alert" className="text-caption font-semibold text-danger">
-              {saveError}
-            </p>
-          ) : null}
-          {savedState.status === 'error' ? (
-            <p role="alert" className="text-caption text-danger">
-              Couldn&rsquo;t check your saved places.{' '}
-              <button type="button" onClick={reloadSaved} className="font-semibold underline">
-                Retry
-              </button>
-            </p>
-          ) : null}
+          <SaveControls restaurant={restaurant} />
           {restaurant.sourceUrl ? (
             <a
               href={restaurant.sourceUrl}
@@ -163,5 +118,72 @@ function ConfidenceCard({ restaurant, occasion }: { restaurant: Restaurant; occa
         </div>
       </div>
     </article>
+  )
+}
+
+/** Save button for signed-in users; signed-out visitors are sent to log in first. */
+function SaveControls({ restaurant }: { restaurant: Restaurant }) {
+  const { status } = useAuth()
+  const location = useLocation()
+
+  if (status === 'signed-out') {
+    const next = encodeURIComponent(`${location.pathname}${location.search}`)
+    return <ButtonLink to={`/login?next=${next}`}>Log in to save this place</ButtonLink>
+  }
+  if (status === 'loading') return <SaveButton saved={false} disabled onToggle={() => undefined} />
+  return <SaveToggle restaurant={restaurant} />
+}
+
+function SaveToggle({ restaurant }: { restaurant: Restaurant }) {
+  const { state: savedState, reload: reloadSaved, save, remove } = useSavedPlaces()
+  const [pending, setPending] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const savedEntry =
+    savedState.status === 'success' ? savedState.data.find((p) => p.restaurantId === restaurant.id) : undefined
+
+  async function toggleSaved() {
+    setPending(true)
+    setSaveError(null)
+    try {
+      if (savedEntry) {
+        await remove(savedEntry.id)
+      } else {
+        await save({
+          restaurantId: restaurant.id,
+          name: restaurant.name,
+          sourceUrl: restaurant.sourceUrl,
+          occasions: restaurant.bestFor,
+        })
+      }
+    } catch {
+      setSaveError('We couldn’t update your saved places. Please try again.')
+    } finally {
+      setPending(false)
+    }
+  }
+
+  return (
+    <>
+      <SaveButton
+        saved={savedEntry !== undefined}
+        pending={pending}
+        disabled={savedState.status !== 'success'}
+        onToggle={toggleSaved}
+      />
+      {saveError ? (
+        <p role="alert" className="text-caption font-semibold text-danger">
+          {saveError}
+        </p>
+      ) : null}
+      {savedState.status === 'error' ? (
+        <p role="alert" className="text-caption text-danger">
+          Couldn&rsquo;t check your saved places.{' '}
+          <button type="button" onClick={reloadSaved} className="font-semibold underline">
+            Retry
+          </button>
+        </p>
+      ) : null}
+    </>
   )
 }

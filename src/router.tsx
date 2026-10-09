@@ -1,10 +1,14 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { RequireAuth } from './components/auth/RequireAuth'
 import { AppShell } from './components/layout/AppShell'
+import { AccountPage } from './pages/AccountPage'
 import { AddPlacePage } from './pages/AddPlacePage'
 import { HomePage } from './pages/HomePage'
+import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { RestaurantPage } from './pages/RestaurantPage'
 import { SavedPage } from './pages/SavedPage'
+import { SignupPage } from './pages/SignupPage'
 
 export const router = createBrowserRouter([
   {
@@ -12,8 +16,17 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/place/:id', element: <RestaurantPage /> },
-      { path: '/saved', element: <SavedPage /> },
-      { path: '/add', element: <AddPlacePage /> },
+      { path: '/login', element: <LoginPage /> },
+      { path: '/signup', element: <SignupPage /> },
+      {
+        // Pages that need an account
+        element: <RequireAuth />,
+        children: [
+          { path: '/saved', element: <SavedPage /> },
+          { path: '/add', element: <AddPlacePage /> },
+          { path: '/account', element: <AccountPage /> },
+        ],
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

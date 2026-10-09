@@ -26,8 +26,10 @@ Other scripts:
 
 - **Home (`/`)**: pick an occasion and an optional budget; get the top 3 matches. Choices live in the URL (`/?occasion=date&budget=30`).
 - **Confidence card (`/place/:id`)**: swipeable photos, best-for chips (your occasion is highlighted), price, what to order, photo freshness, save button.
-- **Saved (`/saved`)**: saved places, filterable by occasion, with an empty state.
-- **Add a place (`/add`)**: paste a link and a name; creates a saved place through the mock service (no link parsing).
+- **Saved (`/saved`)**: your saved places, filterable by occasion, with an empty state. Needs an account.
+- **Add a place (`/add`)**: paste a link and a name; saves it to your list (no link parsing). Needs an account.
+- **Log in / Create account (`/login`, `/signup`)**: email and password. Browsing is public; Saved, Add and Account send signed-out visitors to log in first and bring them back afterwards.
+- **Account (`/account`)**: shows who is signed in and lets them log out.
 
 Every screen has loading, empty and error states. The mock service waits 200 to 600 ms so you can see them.
 
@@ -89,23 +91,39 @@ The app talks to Supabase when it has a URL and an anon key; without them it sil
 1. In the Supabase dashboard open **SQL Editor** and run, in this order:
    1. `supabase/schema.sql`: tables, row level security, policies.
    2. `supabase/seed.sql`: the 10 placeholder restaurants. (Re-running it replaces them.)
+   (Project created with the older device-id version? Run `supabase/migrations/001_saved_places_belong_to_users.sql` instead of `schema.sql`.)
 2. Copy `.env.example` to `.env.local` and paste your **anon (public) key** from *Project Settings > API Keys*:
    ```bash
    cp .env.example .env.local
    ```
-3. Restart `npm run dev`. You should see the 10 seeded places on Home, and saved places appear in the `saved_places` table.
+3. Set up email login (below), then restart `npm run dev`.
+
+### Accounts and email login
+
+Accounts use Supabase Auth with email and password. Created users appear in the dashboard under **Authentication > Users**.
+
+Settings to check in the Supabase dashboard (the app cannot change these for you):
+
+- **Authentication > URL Configuration**: set **Site URL** to where the app runs (`http://localhost:5173` while developing, your real address once deployed) and add the same address under **Redirect URLs**. The confirmation email links back here; if this is wrong, the link opens a broken page.
+- **Authentication > Providers > Email**: "Confirm email" is on by default, so new people must click the link in their inbox before they can log in. Turn it off only if you want instant sign-in.
+- **Email sending limits**: Supabase's built-in email sender is for testing only and allows just a few emails per hour. For a real site, set up your own SMTP provider under **Authentication > SMTP Settings**.
+- **Password rules**: the app requires 8+ characters. You can raise the minimum under **Authentication > Sign In / Providers**.
+
+With no Supabase variables set (mock mode), login accepts any email and password and nothing is verified or stored remotely.
 
 ### How it works
 
-- `src/lib/supabaseClient.ts`: creates the client from the env vars (anon key only).
-- `src/lib/deviceId.ts`: a random id per browser (`cc.deviceId` in localStorage). It is sent as the `x-device-id` header, and row level security only lets a device read, add and delete its own `saved_places`. Restaurants are read-only to the app.
+- `src/lib/supabaseClient.ts`: creates the client from the env vars (anon key only). The session is kept in localStorage and refreshed automatically.
+- `src/services/authService.ts` plus `supabase/supabaseAuthService.ts` and `mock/mockAuthService.ts`: sign up, log in, log out, current user. `src/components/auth/AuthProvider.tsx` and `src/hooks/useAuth.ts` expose it to the UI; `RequireAuth.tsx` guards the account-only routes.
 - `src/services/supabase/`: `supabaseRestaurantService.ts`, `supabaseSavedPlaceService.ts` and `mappers.ts` (snake_case database rows to the app's types).
+- `saved_places` rows belong to a user (`user_id` fills itself from the session). Row level security lets a signed-in user read, add and delete only their own rows; signed-out visitors have no access. Restaurants are readable by everyone and read-only to the app.
 - `src/data/mockRestaurants.ts` is still the source for `seed.sql`. To change the live data, edit the rows in Supabase (Table Editor) or update `seed.sql`.
 
 ### Security notes
 
 - Never put the `service_role` key in this app or in git. Only the anon key belongs in `.env.local`.
-- The device id is "prototype privacy": it keeps testers' lists separate, but anyone who learns a device id could act as that device. Real accounts (Supabase Auth) would replace it.
+- Passwords are handled entirely by Supabase Auth; the app never stores them.
+- Not built yet: password reset ("forgot password"), changing email or password, deleting an account, social login.
 - Photos still use placeholder URLs. When you have real photos, upload them to Supabase Storage and update `restaurants.photos`.
 
 ## Accessibility notes
