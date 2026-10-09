@@ -102,12 +102,14 @@ The app talks to Supabase when it has a URL and an anon key; without them it sil
 
 Accounts use Supabase Auth with email and password. Created users appear in the dashboard under **Authentication > Users**.
 
-Settings to check in the Supabase dashboard (the app cannot change these for you):
+**Confirm email** (Authentication > Providers > Email) can be on or off, and the app works either way:
 
-- **Authentication > URL Configuration**: set **Site URL** to where the app runs (`http://localhost:5173` while developing, your real address once deployed) and add the same address under **Redirect URLs**. The confirmation email links back here; if this is wrong, the link opens a broken page.
-- **Authentication > Providers > Email**: "Confirm email" is on by default, so new people must click the link in their inbox before they can log in. Turn it off only if you want instant sign-in.
-- **Email sending limits**: Supabase's built-in email sender is for testing only and allows just a few emails per hour. For a real site, set up your own SMTP provider under **Authentication > SMTP Settings**.
-- **Password rules**: the app requires 8+ characters. You can raise the minimum under **Authentication > Sign In / Providers**.
+- **Off** (current setup): signing up logs the person in straight away and no email is sent. Anyone can register with an address they don't own, so turn it on before real users arrive.
+- **On**: new people see "Check your email" and must click the link before they can log in. Then you also need, in the dashboard:
+  - **Authentication > URL Configuration**: set **Site URL** to where the app runs (`http://localhost:5173` while developing, your real address once deployed) and add the same address under **Redirect URLs**. Otherwise the link in the email opens a broken page.
+  - **Authentication > SMTP Settings**: Supabase's built-in email sender is for testing only and allows just a few emails per hour. Use your own SMTP provider for a real site.
+
+The app requires passwords of 8+ characters; you can raise the minimum under **Authentication > Sign In / Providers**.
 
 With no Supabase variables set (mock mode), login accepts any email and password and nothing is verified or stored remotely.
 
