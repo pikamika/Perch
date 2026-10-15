@@ -104,11 +104,12 @@ revoke all on public.saved_places from anon;
 grant select, insert, delete on public.saved_places to authenticated;
 
 -- ---------------------------------------------------------------------------
--- profiles: one row per user (first name, city)
+-- profiles: one row per user (first name, last name, city)
 -- ---------------------------------------------------------------------------
 create table if not exists public.profiles (
   id           uuid primary key default auth.uid() references auth.users (id) on delete cascade,
   first_name   text not null check (length(trim(first_name)) between 1 and 60),
+  last_name    text not null default '' check (length(last_name) <= 60),
   city         text not null default '' check (length(city) <= 100),
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
@@ -154,8 +155,8 @@ create trigger profiles_set_updated_at
   before update on public.profiles
   for each row execute function public.set_updated_at();
 
--- Create the profile automatically when someone signs up. The app sends first_name and city
--- as sign-up metadata, so this also works when email confirmation
+-- Create the profile automatically when someone signs up. The app sends first_name, last_name
+-- and city as sign-up metadata, so this also works when email confirmation
 -- is on (no session yet). Never blocks sign-up: anything missing or invalid falls back to a default.
 create or replace function public.handle_new_user()
 returns trigger
@@ -167,10 +168,11 @@ declare
   meta  jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
   fname text  := nullif(trim(coalesce(meta ->> 'first_name', '')), '');
 begin
-  insert into public.profiles (id, first_name, city)
+  insert into public.profiles (id, first_name, last_name, city)
   values (
     new.id,
     left(coalesce(fname, nullif(split_part(coalesce(new.email, ''), '@', 1), ''), 'Friend'), 60),
+    left(trim(coalesce(meta ->> 'last_name', '')), 60),
     left(trim(coalesce(meta ->> 'city', '')), 100)
   );
   return new;

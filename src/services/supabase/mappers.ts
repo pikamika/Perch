@@ -126,6 +126,7 @@ export function toProfile(row: unknown): Profile {
   return {
     id: str(row, 'id'),
     firstName: str(row, 'first_name'),
+    lastName: typeof row.last_name === 'string' ? row.last_name : '',
     city: typeof row.city === 'string' ? row.city : '',
   }
 }

@@ -19,6 +19,7 @@ export const mockProfileService: ProfileService = {
     const created: Profile = {
       id: user.id,
       firstName: user.email.split('@')[0] || 'Friend',
+      lastName: '',
       city: '',
     }
     saveMockProfile(created)

@@ -16,6 +16,7 @@ interface Props {
 
 interface Errors {
   firstName?: string
+  lastName?: string
   city?: string
   email?: string
   password?: string
@@ -27,6 +28,7 @@ export function AuthForm({ mode, next }: Props) {
   const isSignup = mode === 'signup'
 
   const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [city, setCity] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,6 +37,7 @@ export function AuthForm({ mode, next }: Props) {
   const [pending, setPending] = useState(false)
   const [confirmEmail, setConfirmEmail] = useState<string | null>(null)
   const firstNameRef = useRef<HTMLInputElement>(null)
+  const lastNameRef = useRef<HTMLInputElement>(null)
   const cityRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
@@ -43,16 +46,18 @@ export function AuthForm({ mode, next }: Props) {
 
   // The button stays disabled until every field has something in it.
   const allFilled =
-    email.trim() !== '' && password !== '' && (!isSignup || (firstName.trim() !== '' && city.trim() !== ''))
+    email.trim() !== '' && password !== '' && (!isSignup || (firstName.trim() !== '' && lastName.trim() !== '' && city.trim() !== ''))
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmedEmail = email.trim()
     const trimmedName = firstName.trim()
+    const trimmedLastName = lastName.trim()
     const trimmedCity = city.trim()
 
     const nextErrors: Errors = {}
     if (isSignup && !trimmedName) nextErrors.firstName = 'Enter your first name.'
+    if (isSignup && !trimmedLastName) nextErrors.lastName = 'Enter your last name.'
     if (isSignup && !trimmedCity) nextErrors.city = 'Enter the city you live in.'
     if (!trimmedEmail) nextErrors.email = 'Enter your email address.'
     else if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) nextErrors.email = 'That doesn’t look like an email address.'
@@ -64,6 +69,7 @@ export function AuthForm({ mode, next }: Props) {
     setErrors(nextErrors)
     setFormError(null)
     if (nextErrors.firstName) return firstNameRef.current?.focus()
+    if (nextErrors.lastName) return lastNameRef.current?.focus()
     if (nextErrors.city) return cityRef.current?.focus()
     if (nextErrors.email) return emailRef.current?.focus()
     if (nextErrors.password) return passwordRef.current?.focus()
@@ -71,7 +77,11 @@ export function AuthForm({ mode, next }: Props) {
     setPending(true)
     try {
       if (isSignup) {
-        const result = await signUp(trimmedEmail, password, { firstName: trimmedName, city: trimmedCity })
+        const result = await signUp(trimmedEmail, password, {
+          firstName: trimmedName,
+          lastName: trimmedLastName,
+          city: trimmedCity,
+        })
         if (result.status === 'confirmation-required') {
           setConfirmEmail(trimmedEmail)
           return
@@ -116,6 +126,14 @@ export function AuthForm({ mode, next }: Props) {
             value={firstName}
             error={errors.firstName}
             onChange={(e) => setFirstName(e.target.value)}
+          />
+          <TextField
+            ref={lastNameRef}
+            label="Last name"
+            autoComplete="family-name"
+            value={lastName}
+            error={errors.lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
           <TextField
             ref={cityRef}

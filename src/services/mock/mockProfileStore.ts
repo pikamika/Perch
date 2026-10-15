@@ -19,7 +19,12 @@ function readAll(): Record<string, Profile> {
         typeof value.firstName === 'string' &&
         typeof value.city === 'string'
       ) {
-        result[id] = { id, firstName: value.firstName, city: value.city }
+        result[id] = {
+          id,
+          firstName: value.firstName,
+          lastName: typeof value.lastName === 'string' ? value.lastName : '',
+          city: value.city,
+        }
       }
     }
     return result

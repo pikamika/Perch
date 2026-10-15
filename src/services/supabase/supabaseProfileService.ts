@@ -32,6 +32,7 @@ export const supabaseProfileService: ProfileService = {
     const user = await currentUser()
     const row: Record<string, string> = {}
     if (update.firstName !== undefined) row.first_name = update.firstName
+    if (update.lastName !== undefined) row.last_name = update.lastName
     if (update.city !== undefined) row.city = update.city
 
     const { data, error } = await getSupabase().from('profiles').update(row).eq('id', user.id).select('*').single()

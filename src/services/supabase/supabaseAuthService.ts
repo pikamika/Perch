@@ -55,7 +55,7 @@ export const supabaseAuthService: AuthService = {
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         // A database trigger turns this metadata into the person's profile row.
-        data: { first_name: profile.firstName, city: profile.city },
+        data: { first_name: profile.firstName, last_name: profile.lastName, city: profile.city },
       },
     })
     if (error) throw friendly(error)
